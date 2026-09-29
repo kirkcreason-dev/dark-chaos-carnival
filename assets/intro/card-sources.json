@@ -1,0 +1,56 @@
+[
+  {
+    "id": "wraith",
+    "title": "The Wraith: Shangri-La",
+    "artist": "Insane Clown Posse",
+    "source": "https://music.apple.com/us/album/the-wraith-shangri-la/1202351283",
+    "discoveredAt": "https://www.psychopathicrecords.com/music",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music111/v4/c4/75/c4/c475c496-a260-b122-4914-dabc47565ea6/886446359557.jpg/600x600bb.jpg",
+    "local": "assets/cards/wraith.jpg"
+  },
+  {
+    "id": "jeckel",
+    "title": "The Amazing Jeckel Brothers",
+    "artist": "Insane Clown Posse",
+    "source": "https://music.apple.com/us/album/the-amazing-jeckel-brothers/1443825431",
+    "discoveredAt": "https://www.psychopathicrecords.com/music",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/cd/3e/9b/cd3e9be7-b6a0-4596-6948-5c467d0cc728/00731452466129.rgb.jpg/600x600bb.jpg",
+    "local": "assets/cards/jeckel.jpg"
+  },
+  {
+    "id": "milenko",
+    "title": "The Great Milenko",
+    "artist": "Insane Clown Posse",
+    "source": "https://music.apple.com/us/album/great-milenko/1440912333?i=1440912435&uo=4",
+    "discoveredAt": "https://www.psychopathicrecords.com/music",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/61/26/26/6126265f-d270-d96c-a3dd-3f37564dddf4/00731452444226.rgb.jpg/600x600bb.jpg",
+    "local": "assets/cards/milenko.jpg"
+  },
+  {
+    "id": "riddle",
+    "title": "Riddle Box",
+    "artist": "Insane Clown Posse",
+    "source": "https://music.apple.com/us/album/riddle-box/598730428",
+    "discoveredAt": "https://www.psychopathicrecords.com/music",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/46/9e/6e/469e6e70-1dc4-1f98-8d10-20341db1cd9f/886443852723.jpg/600x600bb.jpg",
+    "local": "assets/cards/riddle.jpg"
+  },
+  {
+    "id": "ringmaster",
+    "title": "Ringmaster",
+    "artist": "Insane Clown Posse",
+    "source": "https://music.apple.com/us/album/ringmaster/1525404611",
+    "discoveredAt": "https://www.psychopathicrecords.com/music",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/e7/20/2a/e7202a26-4659-ca99-c107-278504105835/195497057313.jpg/600x600bb.jpg",
+    "local": "assets/cards/ringmaster.jpg"
+  },
+  {
+    "id": "carnage",
+    "title": "Carnival of Carnage",
+    "artist": "Insane Clown Posse",
+    "source": "https://music.apple.com/us/album/carnival-of-carnage/1198895069",
+    "discoveredAt": "https://www.psychopathicrecords.com/music",
+    "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music111/v4/5a/93/c9/5a93c9f0-f9ca-d9db-0a0f-2b3be11713d0/886446341002.jpg/600x600bb.jpg",
+    "local": "assets/cards/carnage.jpg"
+  }
+]

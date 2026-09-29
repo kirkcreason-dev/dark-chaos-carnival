@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#100d18">
+  <title>Dark Chaos Carnival — Playable Concept</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <button class="brand" id="home-button" aria-label="Dark Chaos Carnival home"><span class="brand-icon">✦</span><span>DARK CHAOS<br><b>CARNIVAL</b></span></button>
+      <nav aria-label="Main navigation">
+        <button class="nav-button active" data-view="home">The midway</button>
+        <button class="nav-button" data-view="vault">The record vault <span id="vault-count">0/6</span></button>
+        <button class="nav-button" data-view="how">How to play</button>
+      </nav>
+      <button class="sound-button" id="sound-button" aria-pressed="false" title="Toggle original horrorcore beat and sound effects">SOUND OFF <span>♪</span></button>
+    </header>
+
+    <main>
+      <section id="home" class="view home-view">
+        <div class="hero">
+          <div class="hero-art" role="img" aria-label="A glowing, sinister carnival beneath a green moon"></div>
+          <div class="hero-content">
+            <p class="eyebrow"><span class="tiny-star">✦</span> INSANE CLOWN POSSE · DARK CARNIVAL CONCEPT</p>
+            <h1>DARK<br><span>CHAOS</span><br>CARNIVAL<span class="title-star">✷</span></h1>
+            <p class="hero-subtitle">Bring your homies.<br>Leave with bragging rights.</p>
+            <p class="hero-description">Play as Violent J, Shaggy 2 Dope, and the spirits of the Joker’s Cards. Hunt, brawl, bluff, and survive a midway that wants your soul.</p>
+            <div class="hero-buttons"><button class="button primary" id="solo-button">PLAY NOW <span>→</span></button><button class="button secondary" id="party-button">LOCAL PARTY</button></div><div class="hero-secondary-actions"><button id="watch-intro" class="text-button">WATCH INTRO ▶</button><button id="custom-solo" class="text-button custom-solo">CHARACTERS & CUP ↗</button></div>
+            <div class="hero-facts"><span>1–4 LOCAL PLAYERS*</span><i></i><span>6 ATTRACTIONS</span><i></i><span>NO DOWNLOAD REQUIRED</span></div>
+          </div>
+          <div class="hero-cast" aria-label="Violent J and Shaggy 2 Dope"><div class="hero-j character-sprite sprite-icp row-0"></div><div class="hero-shaggy character-sprite sprite-icp row-1"></div></div><div class="card-fan"><img src="assets/cards/ringmaster.jpg" alt="Ringmaster"><img src="assets/cards/riddle.jpg" alt="Riddle Box"><img src="assets/cards/milenko.jpg" alt="The Great Milenko"></div><div class="ticket-stamp"><span>ADMIT</span><strong>THE<br>FAMILY</strong><span>EST. IN THE AFTERLIFE</span></div>
+          <div class="hero-caption"><span class="live-dot"></span> PLAYABLE BUILD · V0.6 <span>ACTUAL CARDS · SIX PLAYABLE CHARACTERS</span></div>
+        </div>
+        <div class="midway-strip"><span>STEP RIGHT UP</span><span>✦</span><span>SIX CARDS. ONE WICKED CUP.</span><span>✦</span><span>EVERY SOUL GETS A TURN</span><span>✦</span><span>STEP RIGHT UP</span></div>
+        <div class="home-lower">
+          <button class="daily-card" id="daily-button"><div><p class="eyebrow">TODAY'S DAILY MIDWAY <span id="daily-date"></span></p><h2>A different kind of hell.<span>↗</span></h2><p id="daily-route">Three attractions. One shared route.</p><div class="daily-bottom"><b>TAKE THE DAILY RUN</b><span id="daily-best">Your first run is waiting</span></div></div><div class="daily-sigil">☾<span>DAILY<br>ADMISSION</span></div></button>
+          <div class="passbook-card"><p class="eyebrow">YOUR CARNIVAL PASSBOOK</p><div class="passbook-stats"><div><strong id="visit-count">0</strong><span>DAYS PLAYED</span></div><div><strong id="secret-count">0<span>/6</span></strong><span>SECRETS FOUND</span></div><div><strong id="ticket-count">0</strong><span>LIFETIME TICKETS</span></div></div><p>New routes daily. Your discoveries stay forever.</p></div>
+        </div>
+        <div class="section-heading"><p class="eyebrow">THE FIRST DECK · SIX PLAYABLE ATTRACTIONS</p><span>Pick a booth to practice ↓</span></div>
+        <div id="attraction-grid" class="attraction-grid"></div>
+        <p class="prototype-note">ICP game concept · not an official release. *Two players can share a keyboard; up to four with gamepads. Solo includes bots. Online play is planned, not included.</p>
+      </section>
+
+      <section id="lobby" class="view inner-view" hidden>
+        <button class="text-button back" data-view="home">← BACK TO THE MIDWAY</button>
+        <div class="page-heading"><p class="eyebrow" id="lobby-eyebrow">LOCAL MULTIPLAYER</p><h2 id="lobby-title">Gather your homies.</h2><p id="lobby-subtitle">Four contestants. One crown. Fill empty seats with carnival bots.</p></div>
+        <div id="player-seats" class="player-seats"></div>
+        <div class="lobby-settings"><label>CUP LENGTH<select id="cup-length"><option value="3">Quick cup · 3 rounds · about 4 minutes</option><option value="6">Full midway · 6 rounds · about 7 minutes</option></select></label><label>YOUR LOOK<select id="look-select"><option value="classic">Midway original</option><option value="neon" disabled>Neon night · 100 tickets</option><option value="royal" disabled>Afterlife royalty · 300 tickets</option></select></label><label>BOT DIFFICULTY<select id="bot-level"><option value="chill">Chill · learn the attractions</option><option value="rowdy">Rowdy · a fair fight</option><option value="wicked">Wicked · bring your best</option></select></label><label class="check-label"><input type="checkbox" id="touch-toggle"> Phone controls</label><label class="check-label"><input type="checkbox" id="reduced-motion"> Reduce screen shake</label></div>
+        <p class="lobby-help" id="lobby-help">Phone: left thumbstick + hold action + tap dash. P1: click ground to move, click a target to attack, right-click to dash. Or WASD · Space · hold E. P2: Arrows · Enter dash · Right Shift attack. Gamepad: stick · A/Cross dash · X/Square attack. Press a controller button to connect.</p>
+        <p class="error-message" id="lobby-error" role="alert"></p>
+        <div class="lobby-actions"><button class="button primary" id="start-button">ENTER THE CARNIVAL <span>→</span></button><span>Every round explains its rules before the chaos.</span></div>
+      </section>
+
+      <section id="game" class="view game-view" hidden>
+        <div class="game-top"><button id="game-home" class="small-button" aria-label="Back to midway" title="Back to midway">←</button><div><p class="eyebrow" id="round-eyebrow">ROUND 01 / 03</p><h2 id="round-title">Carnage Cashgrab</h2></div><div id="round-time" class="round-time">55<span>SECONDS</span></div><button id="game-sound" class="small-button" aria-pressed="true" aria-label="Toggle sound">SOUND ON ♪</button><button id="fullscreen-button" class="small-button" title="Fullscreen game">FULLSCREEN ⛶</button><button id="pause-button" class="small-button" aria-label="Pause or resume">PAUSE <span>Ⅱ</span></button></div>
+        <div class="arena-wrap"><canvas id="arena" width="1000" height="580" aria-label="Carnival party arena. Use the thumbstick and action buttons, or your assigned keyboard controls." tabindex="0"></canvas><div id="scoreboard" class="scoreboard"></div><div id="game-overlay" class="game-overlay" hidden></div></div>
+        <div class="game-message"><span id="live-rule">Collect tickets. Dash into rivals to steal one.</span><span id="modifier-label">SECOND DECK: BANG! POW! BOOM!</span></div>
+        <div id="play-assist" class="play-assist"><span id="objective-status"></span><span id="input-help">Click ground to move · Click targets to attack · Right-click to dash</span><button id="pointer-dash" class="small-button">DASH · SPACE</button><button id="pointer-attack" class="small-button">ATTACK · E</button><button id="warmup-next" class="small-button" hidden>SKIP WARM-UP →</button></div>
+        <div id="touch-controls" class="touch-controls" aria-label="Phone controls">
+          <div class="touch-movement"><div id="touch-stick" class="touch-stick" role="group" aria-label="Movement thumbstick. Drag in the direction you want to move."><span class="stick-cross" aria-hidden="true">+</span><span id="touch-nub" class="touch-nub" aria-hidden="true"></span></div><span class="touch-caption">MOVE</span></div>
+          <p class="touch-tip">Two thumbs.<br>One wicked cup.<span>Turn sideways for a bigger arena.</span></p>
+          <div class="touch-actions"><button id="touch-dash" class="touch-action touch-dash" aria-label="Dash in your movement direction"><span aria-hidden="true">↗</span><b>DASH</b><small id="touch-dash-hint">TAP</small></button><button id="touch-attack" class="touch-action touch-attack" aria-label="Hold to attack, catch or deflect"><span aria-hidden="true">✦</span><b id="touch-attack-label">ATTACK</b><small>HOLD</small></button></div>
+        </div>
+        <div class="game-footer"><span>MOVE <kbd>W A S D</kbd> / <kbd>↑ ← ↓ →</kbd> &nbsp; DASH <kbd>SPACE</kbd> / <kbd>ENTER</kbd></span><span><kbd>P</kbd> PAUSE &nbsp; · &nbsp; ATTACK <kbd>E</kbd> / <kbd>RIGHT SHIFT</kbd></span></div>
+      </section>
+
+      <section id="vault" class="view inner-view" hidden>
+        <button class="text-button back" data-view="home">← BACK TO THE MIDWAY</button>
+        <div class="page-heading"><p class="eyebrow">LINER NOTES FROM THE OTHER SIDE</p><h2>The record vault.</h2><p>References you earn by playing. Every song title opens a little more of the carnival.</p></div>
+        <div class="vault-tabs"><button id="tab-records" class="small-button active">HIDDEN RECORDS</button><button id="tab-catalog" class="small-button">THE ACTUAL CARDS & ALBUMS</button></div><div id="catalog-panel" hidden><div id="catalog-grid" class="catalog-grid"></div></div><div id="secret-grid" class="secret-grid"></div>
+        <div class="section-heading"><p class="eyebrow">THE SECOND DECK · SIX PLAYABLE RULE TWISTS</p><span>Original game interpretations</span></div>
+        <div id="modifier-grid" class="modifier-grid"></div>
+        <div class="vault-note"><strong>The whole catalog belongs in the plan.</strong><p>Both decks are represented in this prototype. The design book also maps sideshows, non-card albums, Forgotten Freshness, and song-based attractions for the full game. New mechanics and story beats are proposals, not claims about ICP canon.</p></div>
+      </section>
+
+      <section id="how" class="view inner-view" hidden>
+        <button class="text-button back" data-view="home">← BACK TO THE MIDWAY</button>
+        <div class="page-heading"><p class="eyebrow">WELCOME TO THE SHOW</p><h2>Easy to learn.<br>Hard to leave.</h2><p>On a phone, drag the left thumbstick to move, hold the action button to attack or catch, and tap Dash to dodge. On a computer, click the ground to move, click a target, and right-click to dash. Or use the keyboard. Every attraction has its own way to win. Attack with E or Right Shift; a gamepad uses its left face button (X / Square).</p></div>
+        <div class="how-grid"><article><span class="big-number">01</span><h3>Bring the family</h3><p>One player with bots, two on a keyboard, or up to four with connected gamepads. Everything happens on this screen.</p></article><article><span class="big-number">02</span><h3>Win the midway</h3><p>Collect tickets and play the attraction's objective. Dash through hazards or bump rivals to steal a ticket. Hits cost tickets, then put you straight back in the action.</p></article><article><span class="big-number">03</span><h3>Claim the crown</h3><p>Each round awards 5, 3, 2, or 1 cup points by place. Ties share points. Highest cup total wins; tied champions share the crown.</p></article><article><span class="big-number">04</span><h3>Come back curious</h3><p>The Daily Midway changes with your local calendar date. Beat your personal best, hunt six song secrets, and earn permanent cosmetic looks. No disappearing rewards or streak penalties.</p></article></div>
+        <div class="control-table"><div><strong>PHONE / TABLET</strong><span>Left thumbstick · Tap Dash · Hold Attack / Catch / Deflect</span></div><div><strong>KEYBOARD 1</strong><span>W A S D · Space dash · hold E attack</span></div><div><strong>KEYBOARD 2</strong><span>Arrow keys · Enter dash · Right Shift attack</span></div><div><strong>GAMEPAD</strong><span>Stick / D-pad · A / Cross dash · X / Square attack</span></div><div><strong>PAUSE</strong><span>P / Escape · Automatically pauses when you leave</span></div></div>
+        <div class="vault-note"><strong>Prototype notes</strong><p>Progress is saved in this browser on this device. Daily scores are personal, not an online leaderboard. Phone controls appear automatically on touchscreens. Portrait and landscape layouts are supported; sideways gives the arena more room. Touch and mouse control the first human seat. Phone play is solo with bots; online rooms are not included. Music and effects are original synthesized sketches. Actual card artwork and researched character adaptations are included for this local concept. No ICP recordings, lyrics, cloned voices, or endorsements are included.</p><a href="DESIGN.md" target="_blank">Read the full game concept & development plan ↗</a></div>
+      </section>
+    </main>
+    <footer class="footer"><span>✦ DARK CHAOS CARNIVAL</span><span>THE MIDWAY IS CALLING.</span><span>PLAYABLE BUILD 0.6 · SEPTEMBER 2026</span></footer>
+    <div id="loading-screen" class="loading-screen" hidden><div><p class="eyebrow">DARK CHAOS CARNIVAL</p><h2>Opening the gates…</h2><p>Preparing the characters and attractions.</p></div></div>
+    <div id="toast" class="toast" role="status" hidden></div>
+  </div>
+
+  <dialog id="intro-dialog" class="intro-dialog" aria-label="Dark Chaos Carnival cinematic intro">
+    <img id="intro-backdrop" class="intro-backdrop" alt="">
+    <div class="intro-vignette" aria-hidden="true"></div>
+    <header class="intro-toolbar"><span id="intro-scene-name" role="status">PREPARING THE SHOW</span><div><button id="intro-sound" class="small-button" aria-pressed="false">SOUND OFF ♪</button><button id="intro-skip" class="small-button">SKIP INTRO ×</button></div></header>
+    <div id="intro-loading" class="intro-loading"><p class="eyebrow">THE MIDWAY IS CALLING</p><h2>Let there be chaos.</h2><p>Loading the show…</p></div>
+    <div id="intro-error" class="intro-loading" hidden><h2>The curtain is stuck.</h2><p>Intro art could not load. Close this intro to keep playing.</p></div>
+    <section class="intro-scene intro-studio-scene" aria-label="CREASO·NORSE presents" hidden><img id="intro-studio-logo" class="intro-studio-logo" alt="CREASO·NORSE"><p class="intro-studio-credit">PRESENTS</p></section>
+    <section class="intro-scene intro-gates-scene" aria-label="The gates" hidden><img id="intro-gates" class="intro-gates-art" alt="An open iron gate beneath a sinister clown arch, leading into a moonlit carnival."><div class="intro-copy"><p class="eyebrow">YOU HEARD THE CALL.</p><h2>Welcome to<br>the other side.</h2><p>The midway is waiting.</p></div></section>
+    <section class="intro-scene intro-cards-scene" aria-label="The first deck" hidden><div class="intro-card-heading"><p class="eyebrow">THE FIRST DECK</p><h2>Six cards.<br>One wicked cup.</h2></div><div class="intro-card-line"><figure style="--card-order:0"><img src="assets/cards/carnage.jpg" alt="Carnival of Carnage"><figcaption>01</figcaption></figure><figure style="--card-order:1"><img src="assets/cards/ringmaster.jpg" alt="Ringmaster"><figcaption>02</figcaption></figure><figure style="--card-order:2"><img src="assets/cards/riddle.jpg" alt="Riddle Box"><figcaption>03</figcaption></figure><figure style="--card-order:3"><img src="assets/cards/milenko.jpg" alt="The Great Milenko"><figcaption>04</figcaption></figure><figure style="--card-order:4"><img src="assets/cards/jeckel.jpg" alt="The Amazing Jeckel Brothers"><figcaption>05</figcaption></figure><figure style="--card-order:5"><img src="assets/cards/wraith.jpg" alt="The Wraith: Shangri-La"><figcaption>06</figcaption></figure></div><p class="intro-card-caption">HUNT. BRAWL. BLUFF. SURVIVE.</p></section>
+    <section class="intro-scene intro-duo-scene" aria-label="Violent J and Shaggy 2 Dope" hidden><div class="intro-duo-heading"><p class="eyebrow">VIOLENT J · SHAGGY 2 DOPE</p><h2>Bring your homies.</h2></div><img id="intro-duo" class="intro-duo-art" alt="Violent J and Shaggy 2 Dope in black and red, posed back to back, with distinct staggered leg positions."><p class="intro-duo-caption">LEAVE WITH BRAGGING RIGHTS.</p></section>
+    <section class="intro-scene intro-title-scene" aria-label="Dark Chaos Carnival" hidden><p class="eyebrow">THE MIDWAY IS CALLING.</p><img id="intro-title" class="intro-title-art" alt="Dark Chaos Carnival"><p class="intro-title-description">Six attractions. Four souls. One crown.</p><button id="intro-play" class="button primary">PLAY NOW <span>→</span></button><button id="intro-back" class="text-button">BACK TO THE MIDWAY</button><p class="intro-concept">ICP GAME CONCEPT · NOT AN OFFICIAL RELEASE</p></section>
+    <footer class="intro-footer"><div class="intro-steps" aria-label="Intro scenes"><button class="intro-step" aria-label="Scene 1: CREASO·NORSE"></button><button class="intro-step" aria-label="Scene 2: The gates"></button><button class="intro-step" aria-label="Scene 3: The first deck"></button><button class="intro-step" aria-label="Scene 4: Violent J and Shaggy"></button><button class="intro-step" aria-label="Scene 5: Title screen"></button></div><div class="intro-playback"><span id="intro-motion-note" hidden>Motion reduced · use Next scene</span><button id="intro-pause" class="small-button">PAUSE Ⅱ</button><button id="intro-next" class="small-button">NEXT SCENE →</button></div></footer>
+    <audio id="intro-audio" preload="none"></audio>
+  </dialog>
+  <dialog id="record-dialog" class="record-dialog"></dialog>
+  <script src="catalog.js"></script>
+  <script src="content.js"></script>
+  <script src="audio.js"></script>
+  <script src="touch-controls.js"></script>
+  <script src="game.js"></script>
+  <script src="library.js"></script>
+  <script src="intro.js"></script>
+</body>
+</html>

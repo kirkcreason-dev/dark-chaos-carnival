@@ -1,0 +1,24 @@
+{
+  "tool": "Built-in image_gen",
+  "assets": [
+    {
+      "key": "intro-gates",
+      "prompt": "Use case: stylized-concept. Asset type: opening cinematic environment plate for the horrorcore party game DARK CHAOS CARNIVAL. Generate one wide 16:9 illustration, ideally 2048x1152. Use the provided existing carnival illustration only as an art-direction reference. New scene: straight-on approach to enormous crooked wrought-iron carnival entrance gates at midnight, half open in the central third, an ominous clown-face arch above, red-and-black striped tent and distant crooked rides beyond. Cracked wet asphalt reflecting sickly green moonlight and blood-red carnival bulbs, torn admission tickets, low teal mist and subtle sparks, detailed rust and peeling paint. Mature hand-inked horror-comic illustration with painterly depth; intense, theatrical, invitingly dangerous, not childish. Strong depth down the center, architecture frames both edges, open dark foreground. Keep all essential gate detail in the central 45% so a phone portrait crop still reads. No people, no lettering, no words, no UI, no logo, no watermark. A clean finished background plate for slow cinematic push-in, no motion blur.",
+      "referenced_image_paths": [
+        "assets/carnival.png"
+      ]
+    },
+    {
+      "key": "intro-duo",
+      "prompt": "Use case: stylized-concept. Asset type: transparent character-reveal foreground layer for DARK CHAOS CARNIVAL game intro. Create ONE duo composition containing Violent J and Shaggy 2 Dope, full bodies from hair through shoes, genuinely transparent alpha background. First reference is their official artist portrait: preserve the real distinctive black-and-white face paint and identities, Violent J stocky blond spiky hair on left, Shaggy 2 Dope lean shaved hair and tattooed arms on right. Second reference is the game's existing sprite sheet: match its mature hand-inked horrorcore comic rendering, black/red jerseys, baggy shorts/pants and footwear. These are the actual ICP characters, not substitute generic clowns. Pose them back-to-back angled outward with faces turned toward viewer, defiant concert energy. Violent J holds a theatrical small hatchet low; Shaggy holds a red soda bottle low. Different natural asymmetrical leg poses: J has LEFT foot forward planted and right leg back with bent knee; Shaggy has RIGHT foot forward planted and left foot back with lifted heel. This is a single cinematic illustration, not a sprite sheet and not a walk animation. Maintain believable anatomy, two arms and two legs each, separate readable silhouettes, rich painted detail and strong rim light (blood red from left, muted teal from right). Complete shoes and hair with generous empty transparent margins, no clipping. Duo occupies center 70% of a wide approximately 3:2 canvas, no environment, no floor, no labels, no typography, no invented logos, no watermark.",
+      "referenced_image_paths": [
+        "Official ICP artist portrait (source: https://www.psychopathicrecords.com/artists)",
+        "assets/sprites/icp.png"
+      ]
+    },
+    {
+      "key": "intro-title",
+      "prompt": "Use case: logo-brand. Asset type: transparent title treatment for a horrorcore carnival party videogame. Produce one polished hand-painted dimensional logo reading EXACTLY three lines: \"DARK\" then \"CHAOS\" then \"CARNIVAL\". No additional words or letters. Bold readable distressed carnival poster lettering with sharp carved serifs, very heavy compact forms, bone ivory DARK, deep blood-red CHAOS with bone beveled highlights, tarnished-gold CARNIVAL in a slightly smaller curved baseline. Inked horror-comic finish, a few subtle scratches and cracks, ominous vintage midway marquee character, high legibility at phone size. Symmetric framing of restrained dark iron flourishes and tiny tarnished stars, no character faces, no official/endorsed badge. The whole mark centered, generously padded, all lettering entirely visible. Real transparent alpha background, no black panel and no scenery, no checkerboard painted into artwork. Approximately 3:2 wide canvas, crisp and finished, no watermark. Exact spelling D-A-R-K C-H-A-O-S C-A-R-N-I-V-A-L."
+    }
+  ]
+}

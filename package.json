@@ -1,0 +1,11 @@
+{
+  "name": "dark-chaos-carnival",
+  "version": "0.6.0",
+  "private": true,
+  "description": "CREASO·NORSE horrorcore carnival party game prototype",
+  "scripts": {
+    "test": "node tests/intro.test.cjs && node tests/desktop.test.cjs && node tests/touch.test.cjs",
+    "build": "python3 scripts/package.py"
+  },
+  "engines": { "node": ">=18" }
+}
