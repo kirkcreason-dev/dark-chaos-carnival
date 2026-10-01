@@ -1,6 +1,18 @@
-# Validation — build 0.6
+# Validation — Alpha 0.7
 
-Checked in desktop Chrome using real page interaction, keyboard events, read-only state snapshots, and rendered screenshots. Automated simulation accelerates time; it does not stand in for human playtesting.
+Checked in a desktop browser using real page interaction, keyboard events, read-only state snapshots, and rendered screenshots. Automated simulation accelerates time; it does not stand in for human playtesting.
+
+## Alpha 0.7 checks
+
+The existing intro, desktop, and touch suites pass with the new save and loading flow. New checks complete the six-attraction Grand Tour using ordinary registered pointer handlers, reload an unfinished attraction, resume after a finished round, and recover the final result screen. They verify that completed-round payouts and crown awards are not duplicated, old saves migrate, malformed checkpoints are rejected, and failed storage still permits a session.
+
+Mastery thresholds and medal retention are checked independently of ticket modifiers. The six-character crown award path is checked using a persisted final-results fixture; that fixture is not presented as a human-played win. The normal simulated full-tour test follows the real scoring and input loop.
+
+A second pair of simulations starts from the same checkpoint in 60 fps and battery modes, then compares player state and elapsed gameplay time. Battery mode renders fewer frames with identical game results. Paused and hidden states stop drawing/advancing. Only one active arena texture remains after each transition. Failed-art and injected rendering-error checks confirm a recoverable screen. The renderer-failure message in the test log is expected fault injection, not an unhandled suite failure.
+
+Controller tests use a sparse gamepad slot, navigate menu buttons, confirm with A, pause with Start, avoid a held confirmation becoming an accidental dash, and handle disconnect/reconnect. The audio graph test verifies separate music/effects buses, mute/resume, remembered levels, and cleanup of finished nodes.
+
+Real browser interaction verified Grand Tour setup, loading, briefings, timed gameplay, results, the next attraction, pause, and a reload restoring the next saved attraction. Views were inspected at 1280 × 720, 390 × 844, and 844 × 390. Portrait results keep the mastery summary and continue button readable. Music and battery settings were changed through the real controls and retained after reload. The rebuilt self-contained HTML opened and resumed a saved attraction with its embedded arena and characters. No browser errors were observed. These are desktop-browser checks at phone sizes, not physical-phone or app-container validation.
 
 ## Creator logo in build 0.6
 

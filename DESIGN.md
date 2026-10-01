@@ -1,6 +1,8 @@
 # Dark Chaos Carnival
 
-**Game concept and production direction · September 27, 2026**
+**Game concept and production direction · Updated October 1, 2026**
+
+Alpha 0.7 adds a complete six-card Grand Tour with character crowns, objective mastery medals, round checkpoints, saved sound/display settings, and controller-operated round menus. The following broader production concept remains the long-term design; `ALPHA.md` and `README.md` describe the current shipped local build.
 
 **Bring your homies. Leave with bragging rights.**
 

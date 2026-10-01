@@ -28,6 +28,6 @@ const assert=require('assert/strict'); const {engine:makeEngine}=require('./harn
   let s=e.snapshot();assert.equal(s.round.state,'results');assert(s.players.every(p=>Number.isFinite(p.score)&&p.score>=0));outcomes.push({booth:s.round.booth,humanScore:s.players[0].score,kills:s.players[0].kills,chickens:s.players[0].delivered,deflects:s.players[0].deflects});
   await e.click('next-round');await e.click('leave-game');
  }
- const fresh=engine();await fresh.click('solo-button');await fresh.click('warmup-next');fresh.tick(3.2);fresh.key('keydown','KeyP');await fresh.click('quit-match');await fresh.click('solo-button');assert.equal(fresh.snapshot().round.state,'countdown');
+ const fresh=engine();await fresh.click('solo-button');await fresh.click('warmup-next');fresh.tick(3.2);fresh.key('keydown','KeyP');await fresh.click('quit-match');await fresh.click('solo-button');assert.equal(fresh.snapshot().scene,'lobby');await fresh.click('start-button');assert.equal(fresh.snapshot().round.state,'countdown');
  console.log(JSON.stringify({status:'passed',warmup:'move, dash, attack, score reset, completion saved',quickCup:'three rounds complete and rematch skips setup',controls:'pointer movement, target attacks, keyboard override, pause/resume',outcomes},null,2));
 })().catch(e=>{console.error(e);process.exit(1)});

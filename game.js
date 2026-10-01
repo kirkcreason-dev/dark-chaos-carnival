@@ -2,19 +2,32 @@
 (() => {
 const assetURL=p=>window.DCC_ASSETS?.[p]||p;
 const C=window.CARNIVAL, $=id=>document.getElementById(id), all=s=>[...document.querySelectorAll(s)];
-const touch=window.CarnivalTouch;
+const touch=window.CarnivalTouch, Progress=window.CarnivalProgress;
 const canvas=$('arena'),ctx=canvas.getContext('2d'),W=1000,H=580;
 const bounds={left:88,right:912,top:176,bottom:510};
 const textures={};
-for(const name of ['icp','hosts','spirits','props','creatures']){const im=new Image();im.src=assetURL(`assets/sprites/${name}.png`);textures[name]=im;}
-for(const b of C.booths){const im=new Image();im.src=assetURL(`assets/arenas/${b.id}.png`);textures['arena-'+b.id]=im;const cover=new Image();cover.src=assetURL(`assets/cards/${b.id}.jpg`);textures['card-'+b.id]=cover;}
-let selectedCharacters=[0,1,2,3],startInFlight=false,quickRequest=false,pointerIntent=null,pointerDash=false,pointerStrike=false,warmup=null;
+const textureLoads={};
+function loadTexture(key,path){
+ if(textures[key]?.complete&&textures[key]?.naturalWidth)return Promise.resolve();
+ if(textureLoads[key])return textureLoads[key];
+ const im=textures[key]||new Image();textures[key]=im;im.src=assetURL(path);
+ let timer;
+ textureLoads[key]=Promise.race([im.decode(),new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('Art loading timed out')),15000);})]).catch(error=>{delete textures[key];throw error;}).finally(()=>{clearTimeout(timer);delete textureLoads[key];});
+ return textureLoads[key];
+}
+async function prepareArt(index,characters){
+ const id=C.booths[index].id,names=[...new Set([...characters.map(n=>C.characters[n].sheet),'props','creatures'])];
+ await Promise.all([loadTexture('arena-'+id,`assets/arenas/${id}.png`),...names.map(name=>loadTexture(name,`assets/sprites/${name}.png`))]);
+}
+let viewRevision=0,selectedCharacters=[0,1,2,3],startInFlight=false,quickRequest=false,pointerIntent=null,pointerDash=false,pointerStrike=false,warmup=null;
 const saveKey='dark-chaos-carnival-v1';
 let storageAvailable=true;
-const emptySave=()=>({version:1,tickets:0,secrets:[],days:[],daily:{},cups:0,look:'classic',reduced:false});
-let save=emptySave();
-try { const raw=JSON.parse(localStorage.getItem(saveKey)||'null'); if(raw&&raw.version===1){save={...save,...raw};save.secrets=Array.isArray(raw.secrets)?raw.secrets.filter(s=>C.booths.some(b=>b.id===s)):[];save.days=Array.isArray(raw.days)?raw.days:[];save.daily=raw.daily&&typeof raw.daily==='object'?raw.daily:{};save.tickets=Math.max(0,Number(raw.tickets)||0);} } catch {storageAvailable=false;}
-function persist(){try{localStorage.setItem(saveKey,JSON.stringify(save));}catch{storageAvailable=false;}}
+let save=Progress.empty();
+try { save=Progress.normalize(JSON.parse(localStorage.getItem(saveKey)||'null')); } catch {storageAvailable=false;}
+function persist(){
+ try{localStorage.setItem(saveKey,JSON.stringify(save));storageAvailable=true;}catch{storageAvailable=false;}
+ const notice=$('save-status');if(notice){notice.hidden=storageAvailable;notice.textContent='Device saving is unavailable. Keep this game open to retain this session’s progress.';}
+}
 function dateKey(d=new Date()){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function hash(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
 function seeded(seed){return ()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
@@ -28,7 +41,7 @@ let activeInputDefaults=['key1','key2','cpu','cpu'];
 const keysOne=['KeyW','KeyA','KeyS','KeyD','Space','KeyE'],keysTwo=['ArrowUp','ArrowLeft','ArrowDown','ArrowRight','Enter','ShiftRight'];
 
 function toast(message){$('toast').innerHTML=message;$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').hidden=true,4500);}
-function showView(id){touch?.reset();all('.view').forEach(e=>e.hidden=e.id!==id);all('.nav-button').forEach(b=>b.classList.toggle('active',b.dataset.view===id));scene=id;$('loading-screen').hidden=true;pointerIntent=null;document.body.classList.remove('warming-up');document.body.classList.toggle('in-game',id==='game');keys.clear();pressedActions.clear();if(id==='home'||id==='vault')refreshProgress();window.scrollTo({top:0,behavior:'instant'});}
+function showView(id){viewRevision++;touch?.reset();all('.view').forEach(e=>e.hidden=e.id!==id);all('.nav-button').forEach(b=>b.classList.toggle('active',b.dataset.view===id));scene=id;$('loading-screen').hidden=true;pointerIntent=null;document.body.classList.remove('warming-up');document.body.classList.toggle('in-game',id==='game');keys.clear();pressedActions.clear();if(id==='home'||id==='vault')refreshProgress();window.scrollTo({top:0,behavior:'instant'});}
 function navigate(id){if(scene==='game'&&match&&['playing','countdown','warmup','paused'].includes(round?.state)){pauseGame();return;}if(scene==='game'){match=null;round=null;}showView(id);}
 function home(){navigate('home');}
 all('[data-view]').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.view)));
@@ -45,72 +58,122 @@ function refreshProgress(){
  $('daily-best').textContent=save.daily[currentDay]?`YOUR BEST: ${save.daily[currentDay].best} TICKETS`:'Your first run is waiting';
  $('visit-count').textContent=save.days.length;$('secret-count').innerHTML=`${save.secrets.length}<span>/6</span>`;$('ticket-count').textContent=save.tickets;$('vault-count').textContent=`${save.secrets.length}/6`;
  $('secret-grid').innerHTML=C.booths.map((b,i)=>`<article class="secret-card ${save.secrets.includes(b.id)?'found':''}"><img class="secret-cover" src="${assetURL(`assets/cards/${b.id}.jpg`)}" alt="${b.card}"><span class="secret-index">${String(i+1).padStart(2,'0')}</span><span class="secret-state">${save.secrets.includes(b.id)?'RECORD DISCOVERED':'HIDDEN IN THE MIDWAY'}</span><h3>${save.secrets.includes(b.id)?b.secret:'An unheard echo'}</h3><div class="album-label">${b.source}</div><p>${save.secrets.includes(b.id)?`“${b.secret}” joins your record vault. A song-title Easter egg, discovered in ${b.title}.`:b.hint}</p>${save.secrets.includes(b.id)?`<a href="${b.sourceUrl}" target="_blank" rel="noopener">OPEN THE TRACK ↗</a>`:''}</article>`).join('');
- $('look-select').options[1].disabled=save.tickets<100;$('look-select').options[2].disabled=save.tickets<300;$('look-select').value=save.look;
+ refreshMastery();
+ $('look-select').options[1].disabled=save.tickets<100;$('look-select').options[2].disabled=save.tickets<300;$('look-select').options[3].disabled=!save.tourWins.length;$('look-select').value=save.look;
 }
 $('modifier-grid').innerHTML=C.modifiers.map((m,i)=>`<article class="modifier-card"><img class="modifier-cover" src="${assetURL(`assets/cards/${m.id==='link'?'lost':m.id}.jpg`)}" alt="${m.card}"><span>II / ${i+1} &nbsp; ${m.icon}</span><h3>${m.card}</h3><p>${m.text}</p></article>`).join('');
 $('attraction-grid').innerHTML=C.booths.map((b,i)=>`<button class="attraction-card" data-practice="${i}" style="--booth-color:${b.color}"><span class="booth-number">0${i+1} / THE FIRST DECK</span><img class="booth-cover" src="${assetURL(`assets/cards/${b.id}.jpg`)}" alt="${b.card} Joker’s Card"><span class="booth-icon">${b.icon}</span><h3>${b.short}</h3><small>PRACTICE ATTRACTION ↗</small></button>`).join('');
 all('[data-practice]').forEach(b=>b.onclick=()=>openLobby('practice',Number(b.dataset.practice)));
+$('tour-button').onclick=()=>openLobby('tour');$('continue-run').onclick=resumeSavedRun;
 $('party-button').onclick=()=>openLobby('party');$('solo-button').onclick=()=>quickPlay();$('custom-solo').onclick=()=>openLobby('solo');$('daily-button').onclick=()=>openLobby('daily');
 
 function openLobby(nextMode,index=0){
+ if(startInFlight)return;
  mode=nextMode;practiceIndex=index;match=null;warmup=null;quickRequest=false;pointerIntent=null;activeInputDefaults=mode==='party'&&!touch?.enabled?['key1','key2','cpu','cpu']:['key1','cpu','cpu','cpu'];
- $('lobby-title').textContent=mode==='daily'?'Today’s route. Your best run.':mode==='practice'?C.booths[index].title:mode==='solo'?'One soul. Three rivals.':'Gather your homies.';
- $('lobby-eyebrow').textContent=mode==='daily'?`DAILY MIDWAY · ${dateKey()}`:mode==='practice'?'PRACTICE BOOTH':mode==='solo'?'SOLO WITH BOTS':'LOCAL MULTIPLAYER';
- $('lobby-subtitle').textContent=mode==='daily'?'A seeded, three-round solo challenge. Beat your personal best on this device.':mode==='practice'?'One attraction. Learn its rules, find its secret, then bring your friends.':'Four contestants. One crown. Fill empty seats with carnival bots.';
- $('cup-length').disabled=mode==='daily'||mode==='practice';$('bot-level').disabled=mode==='daily';if(mode==='daily')$('bot-level').value='rowdy';$('lobby-error').textContent='';$('reduced-motion').checked=save.reduced||window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ $('lobby-title').textContent=mode==='tour'?'Conquer the six-card tour.':mode==='daily'?'Today’s route. Your best run.':mode==='practice'?C.booths[index].title:mode==='solo'?'One soul. Three rivals.':'Gather your homies.';
+ $('lobby-eyebrow').textContent=mode==='tour'?'THE GRAND TOUR · SIX CARDS · ONE CROWN':mode==='daily'?`DAILY MIDWAY · ${dateKey()}`:mode==='practice'?'PRACTICE BOOTH':mode==='solo'?'SOLO WITH BOTS':'LOCAL MULTIPLAYER';
+ $('lobby-subtitle').textContent=mode==='tour'?'Visit every first-deck attraction in order. Win the cup to earn your character’s crown and the Carnival Crown look. Your completed rounds are saved.':mode==='daily'?'A seeded, three-round solo challenge. Beat your personal best on this device.':mode==='practice'?'One attraction. Learn its rules, find its secret, then bring your friends.':'Four contestants. One crown. Fill empty seats with carnival bots.';
+ $('cup-length').disabled=['daily','practice','tour'].includes(mode);$('bot-level').disabled=mode==='daily'||mode==='tour';if(mode==='tour')$('cup-length').value='6';if(mode==='daily'||mode==='tour')$('bot-level').value='rowdy';$('lobby-error').textContent='';$('reduced-motion').checked=save.reduced||window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ $('lobby-save-note').hidden=!save.checkpoint;$('start-button').textContent='ENTER THE CARNIVAL →';
  renderSeats();refreshProgress();showView('lobby');
 }
 function renderSeats(){
- $('player-seats').innerHTML=C.names.map((name,i)=>`<article class="seat" style="--seat-color:${C.colors[i]};--seat-glow:${C.colors[i]}1d"><div class="seat-number"><span>PLAYER 0${i+1}</span><span>✦</span></div>${avatarSVG(C.colors[i],i,save.look)}<h3>${C.characters[selectedCharacters[i]].name}</h3><p>${C.characters[selectedCharacters[i]].role}</p><select class="character-select" aria-label="Player ${i+1} character" id="character-${i}">${C.characters.map((ch,n)=>`<option value="${n}" ${n===selectedCharacters[i]?'selected':''}>${ch.name}</option>`).join('')}</select><select aria-label="Player ${i+1} input" id="input-${i}" ${mode==='daily'&&i>0?'disabled':''}><option value="key1">${touch?.enabled?'Touch / Keyboard · WASD':'Keyboard · WASD'}</option><option value="key2">Keyboard · Arrows</option><option value="pad0">Gamepad 1</option><option value="pad1">Gamepad 2</option><option value="pad2">Gamepad 3</option><option value="pad3">Gamepad 4</option><option value="cpu">Carnival bot</option></select></article>`).join('');
+ $('player-seats').innerHTML=C.names.map((name,i)=>`<article class="seat" style="--seat-color:${C.colors[i]};--seat-glow:${C.colors[i]}1d"><div class="seat-number"><span>PLAYER 0${i+1}</span><span>✦</span></div>${avatarSVG(C.colors[i],i,save.look)}<h3>${C.characters[selectedCharacters[i]].name}</h3><p>${C.characters[selectedCharacters[i]].role}</p><select class="character-select" aria-label="Player ${i+1} character" id="character-${i}">${C.characters.map((ch,n)=>`<option value="${n}" ${n===selectedCharacters[i]?'selected':''}>${ch.name}</option>`).join('')}</select><select aria-label="Player ${i+1} input" id="input-${i}" ${['daily','tour'].includes(mode)&&i>0?'disabled':''}><option value="key1">${touch?.enabled?'Touch / Keyboard · WASD':'Keyboard · WASD'}</option><option value="key2">Keyboard · Arrows</option><option value="pad0">Gamepad 1</option><option value="pad1">Gamepad 2</option><option value="pad2">Gamepad 3</option><option value="pad3">Gamepad 4</option><option value="cpu">Carnival bot</option></select></article>`).join('');
  activeInputDefaults.forEach((v,i)=>$('input-'+i).value=v);
  C.names.forEach((_,i)=>$('character-'+i).onchange=()=>{selectedCharacters[i]=Number($('character-'+i).value);activeInputDefaults=C.names.map((_,n)=>$('input-'+n).value);renderSeats();});
 }
 $('look-select').onchange=()=>{save.look=$('look-select').value;persist();activeInputDefaults=C.names.map((_,i)=>$('input-'+i).value);renderSeats();};
+
+
+function refreshMastery(){
+ const checkpoint=save.checkpoint;
+ $('continue-card').hidden=!checkpoint;
+ if(checkpoint)$('continue-copy').textContent=checkpoint.match.roundIndex===checkpoint.match.route.length?'Your results are ready to claim.':`Attraction ${checkpoint.match.roundIndex+1} of ${checkpoint.match.route.length} · ${C.booths[checkpoint.match.route[checkpoint.match.roundIndex]].title}`;
+ $('mastery-count').textContent=Object.entries(save.mastery).reduce((n,[id,m])=>n+Progress.medal(id,m.best),0)+'/18';
+ $('tour-crowns').textContent=save.tourWins.length+'/6 CHARACTER CROWNS';
+ $('mastery-grid').innerHTML=C.booths.map(b=>{const goal=Progress.goals[b.id],record=save.mastery[b.id],best=record?.best||0,tier=Progress.medal(b.id,best);return `<article class="mastery-card medal-${tier}"><img src="${assetURL(`assets/cards/${b.id}.jpg`)}" alt="${b.card}"><div><span class="medal-name">${Progress.medalNames[tier]}</span><h3>${b.title}</h3><p>${tier===3?'Gold mastered':`${goal.tiers[tier]} ${goal.label} for ${Progress.medalNames[tier+1]}`}</p><small>BEST: ${best} · ${record?.plays||0} ${(record?.plays||0)===1?'ROUND':'ROUNDS'}</small><div class="mastery-track"><span style="width:${Math.min(100,best/goal.tiers[2]*100)}%"></span></div></div></article>`;}).join('');
+ $('crown-roster').innerHTML=C.characters.map((ch,i)=>`<span class="${save.tourWins.includes(i)?'crowned':''}">${save.tourWins.includes(i)?'♛':'◇'} ${ch.name}</span>`).join('');
+}
+function checkpointRun(nextIndex){
+ if(!match)return;
+ save.checkpoint=Progress.checkpoint({version:1,match:{...match,roundIndex:nextIndex},seats:players.map(p=>({character:p.character,control:p.control}))});persist();
+}
+async function openNextRound(){
+ const openingMatch=match;
+ overlay('<p class="eyebrow">NEXT ATTRACTION</p><h2>Opening the gates…</h2><p>Your completed rounds are saved.</p>');
+ try{await prepareArt(match.route[match.roundIndex],players.map(p=>p.character));if(match===openingMatch&&scene==='game')beginRound();}
+ catch{if(match!==openingMatch)return;round.state='loading-error';overlay('<h2>The gate is stuck.</h2><p>Check your connection, then try loading this attraction again. Your run is saved.</p><button class="button primary" id="retry-art">TRY AGAIN</button><button class="button secondary" id="loading-home">BACK TO MIDWAY</button>');$('retry-art').onclick=async()=>{round.state='advancing';await openNextRound();};$('loading-home').onclick=()=>{match=null;round=null;showView('home');};}
+}
+async function resumeSavedRun(){
+ if(startInFlight)return;
+ const saved=Progress.checkpoint(save.checkpoint);if(!saved){save.checkpoint=null;persist();showView('home');return;}
+ const missing=saved.seats.filter(s=>s.control.startsWith('pad')).some(s=>!readGamepads()[Number(s.control.slice(3))]);
+ if(missing){toast('Reconnect the controllers used by this run, then press Continue.');return;}
+ const openingView=viewRevision;startInFlight=true;$('continue-run').disabled=true;
+ try{await prepareArt(saved.match.route[Math.min(saved.match.roundIndex,saved.match.route.length-1)],saved.seats.map(s=>s.character));}
+ catch{toast('The attraction could not load. Check your connection, then Continue again.');startInFlight=false;$('continue-run').disabled=false;return;}
+ startInFlight=false;$('continue-run').disabled=false;if(viewRevision!==openingView)return;match=saved.match;mode=match.mode;practiceIndex=match.route[0];selectedCharacters=saved.seats.map(s=>s.character);
+ players=saved.seats.map((seat,id)=>({id,...seat,name:C.characters[seat.character].name,color:C.colors[id],human:seat.control!=='cpu',score:0,held:false,attackHeld:false}));
+ if(soundOn)initAudio();showView('game');
+ if(match.roundIndex===match.route.length){match.roundIndex--;beginRound(false);match.roundIndex++;finishMatch();return;}
+ beginRound();
+}
+function setupSettings(){
+ $('music-volume').value=Math.round(save.music*100);$('effects-volume').value=Math.round(save.effects*100);$('graphics-mode').value=save.graphics;$('settings-shake').checked=save.reduced;
+ for(const [id,key] of [['music-volume','music'],['effects-volume','effects']])$(id).oninput=()=>{save[key]=clamp(Number($(id).value)/100,0,1);window.CarnivalAudio?.configure?.({music:save.music,effects:save.effects});$(id+'-value').textContent=Math.round(save[key]*100)+'%';persist();};
+ $('music-volume-value').textContent=Math.round(save.music*100)+'%';$('effects-volume-value').textContent=Math.round(save.effects*100)+'%';
+ $('graphics-mode').onchange=()=>{save.graphics=$('graphics-mode').value==='battery'?'battery':'full';persist();};
+ $('settings-shake').onchange=()=>{save.reduced=$('settings-shake').checked;persist();};
+}
 
 async function startMatch(){
  if(startInFlight)return;
  const controls=C.names.map((_,i)=>$('input-'+i).value),humans=controls.filter(v=>v!=='cpu');
  if(!humans.length){$('lobby-error').textContent='Give at least one seat to a human player.';return;}
  if(new Set(humans).size!==humans.length){$('lobby-error').textContent='Each human needs a different keyboard layout or gamepad.';return;}
- gamepads=Array.from(navigator.getGamepads?navigator.getGamepads():[]);
+ gamepads=readGamepads();
  const missing=humans.find(v=>v.startsWith('pad')&&!gamepads[Number(v.slice(3))]);
  if(missing){$('lobby-error').textContent=`Gamepad ${Number(missing.slice(3))+1} is not connected. Press a button on it, or choose a keyboard or bot.`;return;}
- if(mode==='daily'&&(humans.length!==1||controls[0]==='cpu')){$('lobby-error').textContent='Daily runs use one human in the first seat and three bots.';return;}
- startInFlight=true;$('start-button').disabled=true;$('lobby-error').textContent='Opening the gates…';
- try{await Promise.all(Object.values(textures).map(im=>im.decode()));}catch{$('loading-screen').hidden=true;$('lobby-error').textContent='Some game art could not load. Check that the assets folder is present, then try again.';startInFlight=false;$('start-button').disabled=false;return;}
- startInFlight=false;$('start-button').disabled=false;$('lobby-error').textContent='';if(scene!=='lobby')return;
+ if(['daily','tour'].includes(mode)&&(humans.length!==1||controls[0]==='cpu')){$('lobby-error').textContent='Daily runs and the Grand Tour use one human in the first seat and three bots.';return;}
+ const openingView=viewRevision,chosenCharacters=[...selectedCharacters];startInFlight=true;$('start-button').disabled=true;$('lobby-error').textContent='Opening the gates…';
  const day=dateKey(),seed=mode==='daily'?hash(`DCC-play-v1-${day}`):(Date.now()^Math.floor(Math.random()*0xffffff))>>>0;
- rng=seeded(seed);const count=mode==='daily'?3:mode==='practice'?1:Number($('cup-length').value),daily=routeForDay(day);
- match={mode,seed,day,quick:quickRequest,level:$('bot-level').value,roundIndex:0,route:mode==='daily'?daily.booths:mode==='practice'?[practiceIndex]:shuffle(C.booths.map((_,i)=>i),rng).slice(0,count),mods:mode==='daily'?daily.mods:shuffle(C.modifiers.map((_,i)=>i),rng).slice(0,count),totals:[0,0,0,0],raw:[0,0,0,0],roundHistory:[],done:false};
- if(quickRequest){match.route=[0,2,4];match.mods=[3,1,0];}
+ rng=seeded(seed);const count=mode==='tour'?6:mode==='daily'?3:mode==='practice'?1:Number($('cup-length').value),daily=routeForDay(day);
+ const next={mode,seed,day,quick:quickRequest,level:$('bot-level').value,roundIndex:0,route:mode==='tour'?[0,1,2,3,4,5]:mode==='daily'?daily.booths:mode==='practice'?[practiceIndex]:shuffle(C.booths.map((_,i)=>i),rng).slice(0,count),mods:mode==='tour'?[3,4,0,5,1,2]:mode==='daily'?daily.mods:shuffle(C.modifiers.map((_,i)=>i),rng).slice(0,count),totals:[0,0,0,0],raw:[0,0,0,0],roundHistory:[],done:false};
+ if(quickRequest){next.route=[0,2,4];next.mods=[3,1,0];}
+ try{await prepareArt(next.route[0],chosenCharacters);}catch{$('loading-screen').hidden=true;$('lobby-error').textContent='The attraction could not load. Check your connection and try Enter the Carnival again. Your saved run is safe.';startInFlight=false;$('start-button').disabled=false;return;}
+ startInFlight=false;$('start-button').disabled=false;$('lobby-error').textContent='';if(scene!=='lobby'||viewRevision!==openingView)return;
+ selectedCharacters=chosenCharacters;match=next;
  save.reduced=$('reduced-motion').checked;persist();
- players=C.names.map((name,i)=>({id:i,name:C.characters[selectedCharacters[i]].name,character:selectedCharacters[i],color:C.colors[i],control:controls[i],human:controls[i]!=='cpu',x:0,y:0,vx:0,vy:0,faceX:i%2?-1:1,faceY:0,score:0,cup:0,carry:0,cd:0,dash:0,inv:0,bump:0,reveal:0,pickups:0,deflects:0,safes:0,banked:0,secretSpawned:false,botThink:0,target:null,held:false,attackHeld:false,attackCD:0,attackTime:0,kills:0,chain:0,chainClock:0,delivered:0,walkDistance:0}));
+ players=C.names.map((name,i)=>({id:i,name:C.characters[selectedCharacters[i]].name,character:selectedCharacters[i],color:C.colors[i],control:controls[i],human:controls[i]!=='cpu',x:0,y:0,vx:0,vy:0,faceX:i%2?-1:1,faceY:0,score:0,cup:0,carry:0,cd:0,dash:0,inv:0,bump:0,reveal:0,pickups:0,deflects:0,safes:0,banked:0,secretSpawned:false,botThink:0,target:null,held:false,attackHeld:false,attackCD:0,attackTime:0,kills:0,chain:0,chainClock:0,delivered:0,walkDistance:0,carryBonus:false}));
  if(soundOn)initAudio();showView('game');beginRound();if(match.quick){if(!save.learnedControls)beginWarmup();else startCountdown();}
 }
 $('start-button').onclick=startMatch;
-async function quickPlay(){openLobby('solo');quickRequest=true;$('loading-screen').hidden=false;$('bot-level').value='chill';return startMatch();}
+async function quickPlay(){if(startInFlight)return;openLobby('solo');quickRequest=true;$('bot-level').value='chill';if(save.checkpoint){$('start-button').textContent='START A NEW QUICK CUP →';return;}$('loading-screen').hidden=false;return startMatch();}
 
 function controlTip(booth){return touch?.enabled?booth.tip.replace('E / Right Shift: attack.', 'Hold ATTACK.').replace('E / Right Shift: catch.', 'Hold CATCH.').replace('E / Right Shift shoves rivals.', 'Hold ATTACK to shove rivals.').replace('E / Right Shift:', 'Hold ATTACK to'):booth.tip;}
-function beginRound(){
- touch?.reset();
+function beginRound(writeCheckpoint=true){
+ touch?.reset();rng=seeded(hash(`DCC-round-v2:${match.seed}:${match.roundIndex}`));
+ if(writeCheckpoint)checkpointRun(match.roundIndex);
  const booth=C.booths[match.route[match.roundIndex]],modifier=C.modifiers[match.mods[match.roundIndex]];
+ // Evict only when the loaded round is committed, so abandoned loads cannot blank a newer arena.
+ for(const key of Object.keys(textures))if(key.startsWith('arena-')&&key!=='arena-'+booth.id){textures[key].src='';delete textures[key];}
  round={booth,modifier,time:0,duration:55,state:'intro',items:[],hazards:[],blasts:[],secrets:[],spawnClock:0,lastMod:-1,lastJudge:-1,tileCycle:-1,safe:0,tiles:[],gate:0,announced:-1,dummies:[],chickens:[],mirrors:[],shades:[],splats:[],enemyClock:1,lastFire:0};
  particles=[];floaters=[];shake=0;simTick=0;lastBeat=-1;pointerIntent=null;pointerDash=false;pointerStrike=false;warmup=null;document.body.classList.remove('warming-up');$('warmup-next').hidden=true;bounds.top=booth.id==='riddle'?212:176;keys.clear();pressedActions.clear();
- players.forEach((p,i)=>Object.assign(p,{x:180+(i%2)*640,y:240+Math.floor(i/2)*210,vx:0,vy:0,faceX:i%2?-1:1,faceY:0,score:0,carry:0,cd:0,dash:0,inv:1,bump:0,reveal:0,pickups:0,deflects:0,safes:0,banked:0,secretSpawned:false,botThink:0,target:null,held:false,attackHeld:false,attackCD:0,attackTime:0,kills:0,chain:0,chainClock:0,delivered:0,walkDistance:0}));
+ players.forEach((p,i)=>Object.assign(p,{x:180+(i%2)*640,y:240+Math.floor(i/2)*210,vx:0,vy:0,faceX:i%2?-1:1,faceY:0,score:0,carry:0,cd:0,dash:0,inv:1,bump:0,reveal:0,pickups:0,deflects:0,safes:0,banked:0,secretSpawned:false,botThink:0,target:null,held:false,attackHeld:false,attackCD:0,attackTime:0,kills:0,chain:0,chainClock:0,delivered:0,walkDistance:0,carryBonus:false}));
  for(let i=0;i<14;i++)spawnItem();
  if(booth.id==='carnage'){round.items=[];for(let i=0;i<6;i++)spawnDummy();}
  if(booth.id==='ringmaster'){round.items=[];for(let i=0;i<7;i++)spawnChicken();}
  if(booth.id==='milenko')round.mirrors=[{x:280,y:250,hp:3,respawn:0},{x:720,y:250,hp:3,respawn:0},{x:280,y:440,hp:3,respawn:0},{x:720,y:440,hp:3,respawn:0}];
  if(booth.id==='jeckel')for(let i=0;i<4;i++){let angle=rng()*Math.PI*2;round.hazards.push({x:350+i*80,y:260,vx:Math.cos(angle)*165,vy:Math.sin(angle)*165,r:14,owner:-1,grace:0});}
  if(booth.id==='riddle')newTiles();
- $('round-eyebrow').textContent=`${match.mode==='daily'?'DAILY MIDWAY · ':''}ROUND ${String(match.roundIndex+1).padStart(2,'0')} / ${String(match.route.length).padStart(2,'0')} · ${booth.card.toUpperCase()}`;
+ $('round-eyebrow').textContent=`${match.mode==='tour'?'GRAND TOUR · ':match.mode==='daily'?'DAILY MIDWAY · ':''}ROUND ${String(match.roundIndex+1).padStart(2,'0')} / ${String(match.route.length).padStart(2,'0')} · ${booth.card.toUpperCase()}`;
  $('round-title').textContent=booth.title;$('modifier-label').textContent=`II / ${modifier.card.toUpperCase()}`;
  updateHUD();
  overlay(`<div class="briefing-art"><img src="${assetURL(`assets/cards/${booth.id}.jpg`)}" alt="${booth.card}"></div><p class="eyebrow">${booth.tagline}</p><h2>${booth.title}</h2><p>${booth.rule}</p><div class="overlay-rule curse-rule"><img src="${assetURL(`assets/cards/${modifier.id==='link'?'lost':modifier.id}.jpg`)}" alt="${modifier.card}"><p><b>${modifier.card}</b><br>${modifier.text}</p></div><p class="overlay-controls">${controlTip(booth)}<br>${touch?.enabled?'MOVE: left thumbstick · TAP DASH · HOLD ACTION':'MOVE: WASD / Arrows · DASH: Space / Enter · ATTACK: E / Right Shift'}</p><button class="button primary" id="go-round">LET THE CHAOS BEGIN <span>→</span></button>`);
  $('go-round').onclick=startCountdown;
 }
-function startCountdown(){touch?.reset();round.state='countdown';round.countdown=3;keys.clear();pressedActions.clear();pointerIntent=null;$('game-overlay').hidden=true;canvas.focus({preventScroll:true});sound(220,.16,'sine');}
-function overlay(html){$('game-overlay').innerHTML=`<div class="overlay-content">${html}</div>`;$('game-overlay').hidden=false;setTimeout(()=>{const b=$('game-overlay').querySelector('button');if(b)b.focus();},0);}
+function startCountdown(){if(!round||round.state!=='intro')return;touch?.reset();round.state='countdown';round.countdown=3;players.forEach(p=>{p.held=p.control.startsWith('pad')&&!!readGamepads()[Number(p.control.slice(3))]?.buttons[0]?.pressed;});keys.clear();pressedActions.clear();pointerIntent=null;$('game-overlay').hidden=true;canvas.focus({preventScroll:true});sound(220,.16,'sine');}
+function overlay(html){$('game-overlay').innerHTML=`<div class="overlay-content">${html}${players.some(p=>p.control.startsWith('pad'))?'<p class="pad-menu-hint">D-PAD: CHOOSE · A / CROSS: CONFIRM · START: PAUSE</p>':''}</div>`;$('game-overlay').hidden=false;setTimeout(()=>{const b=$('game-overlay').querySelector('button');if(b)b.focus();},0);}
 function randPoint(){return{x:bounds.left+35+rng()*(bounds.right-bounds.left-70),y:bounds.top+35+rng()*(bounds.bottom-bounds.top-70)};}
 function spawnItem(bonus=false){const q=randPoint();round.items.push({...q,id:simTick+rng(),fake:round.booth.id==='milenko'&&!bonus&&rng()<.34,bonus,r:bonus?13:10,phase:rng()*6.28,revealed:0});}
 function newTiles(){round.tiles=Array.from({length:15},(_,i)=>i%3);round.tiles=shuffle(round.tiles,rng);round.safe=Math.floor(rng()*3);round.tileCycle=Math.floor(round.time/6);}
@@ -270,8 +333,8 @@ function botInput(p,dt){
  return{x,y,action,attack:p.attackCD<=0&&((p.target&&dist(p,p.target)<82)||bid==='jeckel'||(['riddle','ringmaster'].includes(bid)&&players.some(q=>q.id!==p.id&&dist(p,q)<75)))};
 }
 function reward(p,value,point=p){if(isFound()||(round.modifier.id==='bedlam'&&Math.hypot(point.x-500,point.y-340)<115))value*=2;addScore(p,value);}
-function addScore(p,value){p.score=Math.max(0,p.score+value);floaters.push({x:p.x,y:p.y-27,text:value>0?`+${value}`:`${value}`,color:value>0?'#d4ef74':'#f388b2',life:1});}
-function emit(x,y,color,count=12){for(let i=0;i<count;i++){const a=rng()*6.283,s=35+rng()*110;particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.35+rng()*.5,max:.9,color,r:1.5+rng()*3});}}
+function addScore(p,value){p.score=Math.max(0,p.score+value);if(floaters.length>=60)floaters.shift();floaters.push({x:p.x,y:p.y-27,text:value>0?`+${value}`:`${value}`,color:value>0?'#d4ef74':'#f388b2',life:1});}
+function emit(x,y,color,count=12){for(let i=0;i<count&&particles.length<180;i++){const a=rng()*6.283,s=35+rng()*110;particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.35+rng()*.5,max:.9,color,r:1.5+rng()*3});}}
 function hit(p,value=-3){
  if(round.state==='warmup'||p.inv>0||p.dash>0)return;
  if(round.booth.id==='ringmaster'&&p.carry){p.carry=0;spawnChicken(p.x,p.y);}
@@ -290,7 +353,7 @@ function step(dt){
  if(round.state==='countdown'){round.countdown-=dt;if(round.countdown<=0){round.state='playing';sound(660,.2,'triangle');}return;}
  if(round.state!=='playing')return;
  simTick++;round.time+=dt;if(round.time>=round.duration){finishRound();return;}
- gamepads=Array.from(navigator.getGamepads?navigator.getGamepads():[]);
+ gamepads=readGamepads();
  if(players.some(p=>p.control.startsWith('pad')&&!gamepads[Number(p.control.slice(3))])){pauseGame('A controller disconnected. Reconnect it to continue.');return;}
  const bid=round.booth.id,mid=round.modifier.id;
  if(Math.floor(round.time/.178571)!==lastBeat){lastBeat=Math.floor(round.time/.178571);if(soundOn)beat(lastBeat);}
@@ -395,39 +458,67 @@ function finishRound(){
  const ranking=[...players].sort((a,b)=>b.score-a.score||a.id-b.id),awards=[5,3,2,1];
  players.forEach(p=>{const rank=players.filter(q=>q.score>p.score).length;match.totals[p.id]+=awards[rank];match.raw[p.id]+=p.score;});
  match.roundHistory.push({booth:round.booth.id,scores:players.map(p=>p.score)});
+ const humanPlayers=players.filter(p=>p.human),earned=humanPlayers.reduce((sum,p)=>sum+p.score,0);
+ save.tickets+=earned;const mastery=Progress.recordRound(save,round.booth.id,humanPlayers);
+ if(!save.days.includes(match.day))save.days.push(match.day);
+ checkpointRun(match.roundIndex+1);
+ const achievement=mastery.newMedal?`${Progress.medalNames[mastery.earned]} medal earned!`:`${mastery.value} ${mastery.label}`;
+ const nextGoal=mastery.next===null?'Gold mastered. Improve your personal best.':`Next medal: ${mastery.next} ${mastery.label} in one round.`;
  const first=ranking.filter(p=>p.score===ranking[0].score),title=first.length>1?'A dead heat.':`${first[0].name} takes the round.`;
  updateHUD();sound(500,.3,'triangle');
- overlay(`<p class="eyebrow">ROUND ${match.roundIndex+1} / ${match.route.length} COMPLETE</p><h2>${title}</h2><p>Round tickets decide place. Cup points decide the champion.</p>${resultCards(ranking,false)}<button class="button primary" id="next-round">${match.roundIndex+1<match.route.length?'NEXT ATTRACTION':'CLAIM YOUR RESULTS'} <span>→</span></button>`);
- $('next-round').onclick=()=>{match.roundIndex++;if(match.roundIndex<match.route.length)beginRound();else finishMatch();};
+ overlay(`<p class="eyebrow">ROUND ${match.roundIndex+1} / ${match.route.length} COMPLETE</p><h2>${title}</h2><p>Round tickets decide place. Cup points decide the champion.</p>${resultCards(ranking,false)}<div class="mastery-result"><strong>${achievement}</strong><span>${nextGoal}</span><small>+${earned} lifetime tickets · ${storageAvailable?'saved':'this session'}</small></div><button class="button primary" id="next-round">${match.roundIndex+1<match.route.length?'NEXT ATTRACTION':'CLAIM YOUR RESULTS'} <span>→</span></button>`);
+ $('next-round').onclick=async()=>{if(round.state!=='results')return;round.state='advancing';match.roundIndex++;if(match.roundIndex<match.route.length)await openNextRound();else finishMatch();};
 }
 function resultCards(ranking,final){return `<div class="round-results">${ranking.map(p=>{const score=final?match.totals[p.id]:p.score,rank=ranking.filter(q=>(final?match.totals[q.id]:q.score)>score).length+1;return `<div class="result-seat ${rank===1?'winner':''}" style="--seat-color:${p.color}"><span class="place">#${rank}</span><strong>${p.name}${p.human?'':' · BOT'}</strong><b>${final?match.totals[p.id]:p.score}</b><p>${final?'CUP POINTS':'ROUND TICKETS'}</p><p>${final?match.raw[p.id]+' TOTAL TICKETS':match.totals[p.id]+' CUP POINTS'}</p></div>`;}).join('')}</div>`;}
 function finishMatch(){
  if(match.done)return;match.done=true;round.state='complete';
  const ranking=[...players].sort((a,b)=>match.totals[b.id]-match.totals[a.id]||a.id-b.id),winners=ranking.filter(p=>match.totals[p.id]===match.totals[ranking[0].id]),earned=players.filter(p=>p.human).reduce((sum,p)=>sum+match.raw[p.id],0),before=save.tickets;
- save.tickets+=earned;save.cups++;if(!save.days.includes(match.day))save.days.push(match.day);
+ save.cups++;save.checkpoint=null;
+ const tourWin=match.mode==='tour'&&winners.some(p=>p.human)&&match.raw[0]>0;
+ if(match.mode==='tour'){save.tourVisits++;if(tourWin&&!save.tourWins.includes(players[0].character))save.tourWins.push(players[0].character);}
  let dailyMessage='';if(match.mode==='daily'){const score=match.raw[0],old=save.daily[match.day];save.daily[match.day]={best:Math.max(old?.best||0,score),runs:(old?.runs||0)+1};dailyMessage=`<div class="daily-summary"><span>TODAY: ${score} TICKETS</span><span>${!old||score>old.best?'NEW PERSONAL BEST':'BEST: '+old.best}</span></div>`;}
  persist();
- let unlock=before<100&&save.tickets>=100?'Neon night look unlocked.':before<300&&save.tickets>=300?'Afterlife royalty look unlocked.':'';
+ let unlock=tourWin?'Carnival Crown look unlocked.':before-earned<300&&save.tickets>=300?'Afterlife royalty look unlocked.':before-earned<100&&save.tickets>=100?'Neon night look unlocked.':'';
  if(unlock)toast(`<strong>NEW LOOK</strong> ${unlock}`);
- const headline=match.mode==='practice'?'You know this booth now.':winners.length>1?'Share the crown.':`${winners[0].name} rules the midway.`;
- overlay(`<div class="overlay-icon">♛</div><p class="eyebrow">${match.mode==='daily'?'DAILY MIDWAY COMPLETE':match.mode==='practice'?'PRACTICE COMPLETE':'THE CARNIVAL HAS ITS CHAMPION'}</p><h2>${headline}</h2>${resultCards(ranking,true)}${dailyMessage}<p>+${earned} lifetime tickets · ${save.secrets.length}/6 records found${unlock?'<br>'+unlock:''}</p><div class="overlay-buttons"><button class="button primary" id="rematch">RUN IT BACK ↻</button><button class="button secondary" id="leave-game">BACK TO THE MIDWAY</button></div><p class="overlay-controls">${storageAvailable?'Progress saved on this device.':'Browser storage is unavailable; progress lasts for this session only.'}</p>`);
+ const headline=match.mode==='tour'?(tourWin?'The Carnival knows your name.':'Six cards. One more reason to return.'):match.mode==='practice'?'You know this booth now.':winners.length>1?'Share the crown.':`${winners[0].name} rules the midway.`;
+ overlay(`<div class="overlay-icon">♛</div><p class="eyebrow">${match.mode==='tour'?(tourWin?'GRAND TOUR CROWNED':'GRAND TOUR COMPLETE'):match.mode==='daily'?'DAILY MIDWAY COMPLETE':match.mode==='practice'?'PRACTICE COMPLETE':'THE CARNIVAL HAS ITS CHAMPION'}</p><h2>${headline}</h2>${resultCards(ranking,true)}${dailyMessage}${match.mode==='tour'?`<p class="tour-ending">${tourWin?'You made it from Carnage to the light. Your crown is in the passbook. Choose another character, master every booth, or answer tomorrow’s call.':'You crossed all six attractions. Your medals and tickets stay with you. Win the cup to claim your crown.'}</p>`:''}<p>+${earned} lifetime tickets · ${save.secrets.length}/6 records found${unlock?'<br>'+unlock:''}</p><div class="overlay-buttons"><button class="button primary" id="rematch">RUN IT BACK ↻</button><button class="button secondary" id="leave-game">BACK TO THE MIDWAY</button></div><p class="overlay-controls">${storageAvailable?'Progress saved on this device.':'Browser storage is unavailable; progress lasts for this session only.'}</p>`);
  $('rematch').onclick=()=>{if(match.quick)return quickPlay();const controls=players.map(p=>p.control);openLobby(mode,practiceIndex);activeInputDefaults=controls;renderSeats();};$('leave-game').onclick=()=>{match=null;showView('home');};
 }
 function pauseGame(message='Take a breath. The carnival can wait.'){
  if(!round||!['playing','countdown','warmup'].includes(round.state))return;
- touch?.reset();viewBeforePause=round.state;round.state='paused';pointerIntent=null;pointerDash=false;pointerStrike=false;keys.clear();pressedActions.clear();players.forEach(p=>p.held=false);
- overlay(`<p class="eyebrow">THE SHOW IS ON HOLD</p><h2>Intermission.</h2><p>${message}</p><div class="overlay-buttons"><button class="button primary" id="resume">BACK TO THE CHAOS</button><button class="button secondary" id="quit-match">LEAVE THE CUP</button></div><p class="overlay-controls">Leaving ends this cup. Discovered records are kept; cup tickets are saved when you finish.</p>`);
+ touch?.reset();window.CarnivalAudio?.stop();viewBeforePause=round.state;round.state='paused';updatePlayAssist();pointerIntent=null;pointerDash=false;pointerStrike=false;keys.clear();pressedActions.clear();players.forEach(p=>p.held=false);
+ overlay(`<p class="eyebrow">THE SHOW IS ON HOLD</p><h2>Intermission.</h2><p>${message}</p><div class="overlay-buttons"><button class="button primary" id="resume">BACK TO THE CHAOS</button><button class="button secondary" id="quit-match">SAVE & LEAVE</button></div><p class="overlay-controls">${storageAvailable?'Completed rounds, tickets, and records are saved. Continue from the midway; the current attraction restarts.':'Saving is unavailable. You can continue while this page stays open, but closing it will lose this session.'}</p>`);
  $('resume').onclick=resumeGame;$('quit-match').onclick=()=>{match=null;round=null;showView('home');};
 }
-function resumeGame(){if(round?.state!=='paused')return;touch?.reset();round.state=viewBeforePause;$('game-overlay').hidden=true;keys.clear();pressedActions.clear();canvas.focus({preventScroll:true});}
+function resumeGame(){if(round?.state!=='paused')return;touch?.reset();if(soundOn)initAudio();round.state=viewBeforePause;players.forEach(p=>{p.held=p.control.startsWith('pad')&&!!readGamepads()[Number(p.control.slice(3))]?.buttons[0]?.pressed;});$('game-overlay').hidden=true;keys.clear();pressedActions.clear();canvas.focus({preventScroll:true});}
 touch?.bind({canPlay:()=>scene==='game'&&['playing','warmup'].includes(round?.state),onInterrupt:()=>{if(scene==='game')pauseGame('Phone rotated. Get comfortable, then jump back in.');}});
 $('pause-button').onclick=()=>round?.state==='paused'?resumeGame():pauseGame();
 window.addEventListener('keydown',e=>{if(scene!=='game')return;if((e.code==='KeyP'||e.code==='Escape')&&!e.repeat){e.preventDefault();if(round?.state==='paused')resumeGame();else pauseGame();return;}if(!['playing','countdown','warmup'].includes(round?.state))return;if([...keysOne,...keysTwo].includes(e.code))e.preventDefault();if((e.code==='Space'||e.code==='Enter'||e.code==='KeyE'||e.code==='ShiftRight')&&!e.repeat&&['playing','warmup'].includes(round.state))pressedActions.add(e.code);keys.add(e.code);});
 window.addEventListener('keyup',e=>keys.delete(e.code));window.addEventListener('blur',()=>{keys.clear();pressedActions.clear();if(scene==='game')pauseGame();});document.addEventListener('visibilitychange',()=>{if(document.hidden){keys.clear();pressedActions.clear();if(scene==='game')pauseGame();}});
+window.addEventListener('pagehide',()=>{keys.clear();pressedActions.clear();if(scene==='game')pauseGame();});
 window.addEventListener('gamepadconnected',e=>toast(`Controller connected: ${e.gamepad.id.split('(')[0]}`));
 
-function initAudio(){if(!audio){try{audio=new(window.AudioContext||window.webkitAudioContext)();}catch{soundOn=false;}}if(audio?.state==='suspended')audio.resume();window.CarnivalAudio?.start();}
-function sound(freq,len=.1,type='sine',volume=.055){if(!soundOn)return;initAudio();if(!audio)return;const o=audio.createOscillator(),g=audio.createGain();o.type=type;o.frequency.setValueAtTime(freq,audio.currentTime);o.frequency.exponentialRampToValueAtTime(Math.max(30,freq*.65),audio.currentTime+len);g.gain.setValueAtTime(volume,audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+len);o.connect(g);g.connect(audio.destination);o.start();o.stop(audio.currentTime+len);}
+function readGamepads(){try{return Array.from(navigator.getGamepads?navigator.getGamepads():[]);}catch{return [];}}
+const menuPadStates=new Map();
+function pollGamepadMenus(){
+ const pads=readGamepads();
+ for(let i=0;i<4;i++){
+  const pad=pads[i],previous=menuPadStates.get(i)||{confirm:false,pause:false,nav:0};
+  const confirm=!!pad?.buttons[0]?.pressed,pause=!!pad?.buttons[9]?.pressed;
+  const nav=pad?(pad.buttons[13]?.pressed||pad.buttons[15]?.pressed||pad.axes[1]>.65||pad.axes[0]>.65?1:pad.buttons[12]?.pressed||pad.buttons[14]?.pressed||pad.axes[1]<-.65||pad.axes[0]<-.65?-1:0):0;
+  menuPadStates.set(i,{confirm,pause,nav});
+  if(scene!=='game'||!players.some(p=>p.control==='pad'+i))continue;
+  if(pause&&!previous.pause){if(round?.state==='paused')resumeGame();else pauseGame();continue;}
+  if(!['intro','results','complete','paused','loading-error','error'].includes(round?.state))continue;
+  const buttons=[...$('game-overlay').querySelectorAll('button')].filter(b=>!b.disabled&&!b.hidden);if(!buttons.length)continue;
+  let index=buttons.indexOf(document.activeElement);if(index<0)index=0;
+  if(nav&&!previous.nav){index=(index+nav+buttons.length)%buttons.length;buttons[index].focus();}
+  if(confirm&&!previous.confirm)buttons[index].click();
+ }
+}
+
+function initAudio(){if(!audio){try{audio=new(window.AudioContext||window.webkitAudioContext)();}catch{soundOn=false;}}if(audio?.state==='suspended')audio.resume()?.catch(()=>{});window.CarnivalAudio?.configure?.({music:save.music,effects:save.effects});window.CarnivalAudio?.start();}
+function sound(freq,len=.1,type='sine',volume=.055){if(!soundOn||save.effects<=0)return;initAudio();if(!audio)return;const o=audio.createOscillator(),g=audio.createGain();o.type=type;o.frequency.setValueAtTime(freq,audio.currentTime);o.frequency.exponentialRampToValueAtTime(Math.max(30,freq*.65),audio.currentTime+len);g.gain.setValueAtTime(Math.max(.001,volume*save.effects),audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+len);o.connect(g);g.connect(audio.destination);o.start();o.stop(audio.currentTime+len);o.onended=()=>{o.disconnect();g.disconnect();};}
 function beat(i){window.CarnivalAudio?.beat(i,round?.booth.id);}
 function soundLabels(){for(const id of ['sound-button','game-sound']){const b=$(id);if(b){b.setAttribute('aria-pressed',soundOn);b.setAttribute('aria-label',soundOn?'Mute sound':'Enable sound');b.innerHTML=`<span class="sound-word">SOUND ${soundOn?'ON':'OFF'}</span> <span>♪</span>`;}}}
 function toggleSound(){soundOn=!soundOn;save.sound=soundOn;persist();if(soundOn)initAudio();else window.CarnivalAudio?.stop();soundLabels();}
@@ -479,10 +570,11 @@ function drawPlayer(p){
  const moving=Math.abs(p.vx)+Math.abs(p.vy)>20,frame=moving?Math.floor(p.walkDistance/22)%4:0,size=ch.sheet==='spirits'?115:110;
  if(p.dash>0){for(let i=3;i>0;i--)drawSprite(ch.sheet,ch.row,frame,p.x-p.faceX*i*13,p.y-p.faceY*i*13,size,.12*(4-i),p.faceX<-.1);}
  const alpha=p.inv>0&&Math.floor(p.inv*9)%2===0?.45:1;
- if(save.look!=='classic'){ctx.shadowColor=save.look==='royal'?'#e6b863':'#7de4cf';ctx.shadowBlur=10;}
+ if(save.look!=='classic'){ctx.shadowColor=['royal','crowned'].includes(save.look)?'#e6b863':'#7de4cf';ctx.shadowBlur=10;}
  drawSprite(ch.sheet,ch.row,frame,p.x,p.y,size,alpha,p.faceX<-.1);ctx.shadowBlur=0;
  if(p.attackTime>0){const a=Math.atan2(p.faceY,p.faceX),progress=1-p.attackTime/.22;ctx.save();ctx.translate(p.x,p.y-24);ctx.rotate(a);ctx.beginPath();ctx.arc(0,0,70,-.9+progress*.9,.7+progress*.9);ctx.strokeStyle=ch.id==='shaggy'?'#f9d9cb':p.color;ctx.lineWidth=8*(1-progress)+2;ctx.shadowColor=p.color;ctx.shadowBlur=15;ctx.stroke();ctx.restore();}
- const label=p.human?'YOU · '+ch.short:ch.short;rect(p.x-49,p.y-size-6,98,18,3,'#100810e8',p.color+'99');textLabel(`${p.id+1} · ${label}`,p.x,p.y-size+3,9,p.color);
+ if(save.look==='crowned'){textLabel('♛',p.x,p.y-size-18,20,'#efc879');}
+ const label=p.human?(players.filter(q=>q.human).length===1?'YOU · ':'')+ch.short:ch.short;rect(p.x-49,p.y-size-6,98,18,3,'#100810e8',p.color+'99');textLabel(`${p.id+1} · ${label}`,p.x,p.y-size+3,9,p.color);
  if(round.booth.id==='wraith'&&p.carry)for(let i=0;i<p.carry;i++)drawProp(6,p.x-16+i*8,p.y+19,19);
  if(round.booth.id==='ringmaster'&&p.carry)drawProp(3,p.x+24,p.y-53,42);
  if(p.chain>1&&p.chainClock>0)textLabel(`${p.chain} HIT CHAIN`,p.x,p.y-size-18,10,'#f4bb72');
@@ -507,9 +599,27 @@ function draw(){
  if(round.state==='countdown'){ctx.fillStyle='#100d1880';ctx.fillRect(0,0,W,H);textLabel(Math.ceil(round.countdown).toString(),500,278,120,'#d4ef74','center','Impact');textLabel('GET READY',500,373,17,'#f4eddc');}
  ctx.restore();
 }
-function frame(ms){const elapsed=lastFrame?Math.min((ms-lastFrame)/1000,.1):0;lastFrame=ms;accumulator+=elapsed;let steps=0;while(accumulator>=1/60&&steps<6){step(1/60);accumulator-=1/60;steps++;}draw();requestAnimationFrame(frame);}
+let lastDraw=0,lastDrawnRound=null,lastDrawnState='',renderCount=0;
+function frame(ms){
+ try{
+  if(document.hidden){lastFrame=0;accumulator=0;return;}
+  pollGamepadMenus();
+  const elapsed=lastFrame?Math.min((ms-lastFrame)/1000,.1):0;lastFrame=ms;accumulator+=elapsed;
+  let steps=0;while(accumulator>=1/60&&steps<6){step(1/60);accumulator-=1/60;steps++;}
+  const active=['playing','countdown','warmup'].includes(round?.state),changed=round!==lastDrawnRound||round?.state!==lastDrawnState;
+  if(scene==='game'&&round&&(changed||active&&ms-lastDraw>=1000/(save.graphics==='battery'?30:60)-.5)){
+   draw();renderCount++;lastDraw=ms;lastDrawnRound=round;lastDrawnState=round.state;
+  }
+ }catch(error){
+  console.error('Carnival interrupted:',error);touch?.reset();keys.clear();pressedActions.clear();window.CarnivalAudio?.stop();
+  if(round)round.state='error';
+  overlay('<p class="eyebrow">YOUR COMPLETED ROUNDS ARE SAFE</p><h2>The curtain caught.</h2><p>Restart this attraction to continue your run.</p><button class="button primary" id="recover-run">CONTINUE SAVED RUN</button><button class="button secondary" id="recover-home">BACK TO MIDWAY</button>');
+  $('recover-run').onclick=resumeSavedRun;$('recover-home').onclick=()=>{match=null;round=null;showView('home');};
+  lastDrawnRound=round;lastDrawnState='error';
+ }finally{requestAnimationFrame(frame);}
+}
 
-refreshProgress();requestAnimationFrame(frame);
+setupSettings();persist();refreshProgress();requestAnimationFrame(frame);
 // Read-only snapshot for deterministic regression checks and debugging.
-window.CarnivalDebug={snapshot:()=>JSON.parse(JSON.stringify({scene,mode,day:dateKey(),round:round?{booth:round.booth.id,modifier:round.modifier.id,state:round.state,time:round.time,items:round.items.length,warmup:warmup?{stage:warmup.stage,moved:warmup.moved,dashed:warmup.dashed}:null,pointer:pointerIntent?{kind:pointerIntent.kind,x:pointerIntent.object?.x??pointerIntent.x,y:pointerIntent.object?.y??pointerIntent.y}:null,world:{items:round.items,hazards:round.hazards,secrets:round.secrets,safe:round.safe,tiles:round.tiles,gate:round.gate,dummies:round.dummies,chickens:round.chickens,mirrors:round.mirrors,shades:round.shades}}:null,players:players.map(p=>({id:p.id,x:p.x,y:p.y,score:p.score,carry:p.carry,cd:p.cd,human:p.human,control:p.control,pickups:p.pickups,deflects:p.deflects,safes:p.safes,banked:p.banked,inv:p.inv,dash:p.dash,kills:p.kills,delivered:p.delivered,character:p.character,attackCD:p.attackCD,walkDistance:p.walkDistance})),match:match?{route:match.route,mods:match.mods,quick:match.quick,level:match.level,day:match.day,totals:match.totals,raw:match.raw,done:match.done}:null,progress:JSON.parse(JSON.stringify(save)),storageAvailable})),routeForDay};
+window.CarnivalDebug={snapshot:()=>JSON.parse(JSON.stringify({scene,mode,renderCount,loadedTextures:Object.keys(textures),day:dateKey(),round:round?{booth:round.booth.id,modifier:round.modifier.id,state:round.state,time:round.time,items:round.items.length,warmup:warmup?{stage:warmup.stage,moved:warmup.moved,dashed:warmup.dashed}:null,pointer:pointerIntent?{kind:pointerIntent.kind,x:pointerIntent.object?.x??pointerIntent.x,y:pointerIntent.object?.y??pointerIntent.y}:null,world:{items:round.items,hazards:round.hazards,secrets:round.secrets,safe:round.safe,tiles:round.tiles,gate:round.gate,dummies:round.dummies,chickens:round.chickens,mirrors:round.mirrors,shades:round.shades}}:null,players:players.map(p=>({id:p.id,x:p.x,y:p.y,score:p.score,carry:p.carry,cd:p.cd,human:p.human,control:p.control,pickups:p.pickups,deflects:p.deflects,safes:p.safes,banked:p.banked,inv:p.inv,dash:p.dash,kills:p.kills,delivered:p.delivered,character:p.character,attackCD:p.attackCD,walkDistance:p.walkDistance})),match:match?{mode:match.mode,roundIndex:match.roundIndex,route:match.route,mods:match.mods,quick:match.quick,level:match.level,day:match.day,totals:match.totals,raw:match.raw,done:match.done}:null,progress:JSON.parse(JSON.stringify(save)),storageAvailable})),routeForDay};
 })();

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#100d18">
-  <title>Dark Chaos Carnival — Playable Concept</title>
+  <title>Dark Chaos Carnival — Alpha 0.7</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -14,7 +14,7 @@
       <nav aria-label="Main navigation">
         <button class="nav-button active" data-view="home">The midway</button>
         <button class="nav-button" data-view="vault">The record vault <span id="vault-count">0/6</span></button>
-        <button class="nav-button" data-view="how">How to play</button>
+        <button class="nav-button" data-view="how">Controls & settings</button>
       </nav>
       <button class="sound-button" id="sound-button" aria-pressed="false" title="Toggle original horrorcore beat and sound effects">SOUND OFF <span>♪</span></button>
     </header>
@@ -32,15 +32,19 @@
             <div class="hero-facts"><span>1–4 LOCAL PLAYERS*</span><i></i><span>6 ATTRACTIONS</span><i></i><span>NO DOWNLOAD REQUIRED</span></div>
           </div>
           <div class="hero-cast" aria-label="Violent J and Shaggy 2 Dope"><div class="hero-j character-sprite sprite-icp row-0"></div><div class="hero-shaggy character-sprite sprite-icp row-1"></div></div><div class="card-fan"><img src="assets/cards/ringmaster.jpg" alt="Ringmaster"><img src="assets/cards/riddle.jpg" alt="Riddle Box"><img src="assets/cards/milenko.jpg" alt="The Great Milenko"></div><div class="ticket-stamp"><span>ADMIT</span><strong>THE<br>FAMILY</strong><span>EST. IN THE AFTERLIFE</span></div>
-          <div class="hero-caption"><span class="live-dot"></span> PLAYABLE BUILD · V0.6 <span>ACTUAL CARDS · SIX PLAYABLE CHARACTERS</span></div>
+          <div class="hero-caption"><span class="live-dot"></span> ALPHA 0.7 · GRAND TOUR <span>ACTUAL CARDS · SIX PLAYABLE CHARACTERS</span></div>
         </div>
         <div class="midway-strip"><span>STEP RIGHT UP</span><span>✦</span><span>SIX CARDS. ONE WICKED CUP.</span><span>✦</span><span>EVERY SOUL GETS A TURN</span><span>✦</span><span>STEP RIGHT UP</span></div>
+        <div id="save-status" class="save-status" role="status" hidden></div>
+        <section id="continue-card" class="continue-card" hidden><div><p class="eyebrow">THE CARNIVAL KEPT YOUR PLACE</p><h2>Finish what you started.</h2><p id="continue-copy"></p></div><button id="continue-run" class="button primary">CONTINUE RUN →</button></section>
+        <section class="tour-card"><div><p class="eyebrow">FROM CARNAGE TO THE LIGHT</p><h2>The Grand Tour.</h2><p>Six attractions. Every first-deck card, in order. Take the crown with each character and master the whole midway.</p><div id="crown-roster" class="crown-roster"></div></div><div class="tour-action"><span id="tour-crowns">0/6 CHARACTER CROWNS</span><button id="tour-button" class="button primary">ENTER THE GRAND TOUR →</button><small>SOLO + BOTS · SAVES BETWEEN ATTRACTIONS</small></div></section>
         <div class="home-lower">
           <button class="daily-card" id="daily-button"><div><p class="eyebrow">TODAY'S DAILY MIDWAY <span id="daily-date"></span></p><h2>A different kind of hell.<span>↗</span></h2><p id="daily-route">Three attractions. One shared route.</p><div class="daily-bottom"><b>TAKE THE DAILY RUN</b><span id="daily-best">Your first run is waiting</span></div></div><div class="daily-sigil">☾<span>DAILY<br>ADMISSION</span></div></button>
           <div class="passbook-card"><p class="eyebrow">YOUR CARNIVAL PASSBOOK</p><div class="passbook-stats"><div><strong id="visit-count">0</strong><span>DAYS PLAYED</span></div><div><strong id="secret-count">0<span>/6</span></strong><span>SECRETS FOUND</span></div><div><strong id="ticket-count">0</strong><span>LIFETIME TICKETS</span></div></div><p>New routes daily. Your discoveries stay forever.</p></div>
         </div>
         <div class="section-heading"><p class="eyebrow">THE FIRST DECK · SIX PLAYABLE ATTRACTIONS</p><span>Pick a booth to practice ↓</span></div>
         <div id="attraction-grid" class="attraction-grid"></div>
+        <div class="section-heading"><p class="eyebrow">YOUR MASTERY PASSBOOK</p><span><b id="mastery-count">0/18</b> MEDALS · ONE ROUND TO PROVE IT</span></div><div id="mastery-grid" class="mastery-grid"></div>
         <p class="prototype-note">ICP game concept · not an official release. *Two players can share a keyboard; up to four with gamepads. Solo includes bots. Online play is planned, not included.</p>
       </section>
 
@@ -48,8 +52,9 @@
         <button class="text-button back" data-view="home">← BACK TO THE MIDWAY</button>
         <div class="page-heading"><p class="eyebrow" id="lobby-eyebrow">LOCAL MULTIPLAYER</p><h2 id="lobby-title">Gather your homies.</h2><p id="lobby-subtitle">Four contestants. One crown. Fill empty seats with carnival bots.</p></div>
         <div id="player-seats" class="player-seats"></div>
-        <div class="lobby-settings"><label>CUP LENGTH<select id="cup-length"><option value="3">Quick cup · 3 rounds · about 4 minutes</option><option value="6">Full midway · 6 rounds · about 7 minutes</option></select></label><label>YOUR LOOK<select id="look-select"><option value="classic">Midway original</option><option value="neon" disabled>Neon night · 100 tickets</option><option value="royal" disabled>Afterlife royalty · 300 tickets</option></select></label><label>BOT DIFFICULTY<select id="bot-level"><option value="chill">Chill · learn the attractions</option><option value="rowdy">Rowdy · a fair fight</option><option value="wicked">Wicked · bring your best</option></select></label><label class="check-label"><input type="checkbox" id="touch-toggle"> Phone controls</label><label class="check-label"><input type="checkbox" id="reduced-motion"> Reduce screen shake</label></div>
+        <div class="lobby-settings"><label>CUP LENGTH<select id="cup-length"><option value="3">Quick cup · 3 rounds · about 4 minutes</option><option value="6">Full midway · 6 rounds · about 7 minutes</option></select></label><label>YOUR LOOK<select id="look-select"><option value="classic">Midway original</option><option value="neon" disabled>Neon night · 100 tickets</option><option value="royal" disabled>Afterlife royalty · 300 tickets</option><option value="crowned" disabled>Carnival Crown · win a Grand Tour</option></select></label><label>BOT DIFFICULTY<select id="bot-level"><option value="chill">Chill · learn the attractions</option><option value="rowdy">Rowdy · a fair fight</option><option value="wicked">Wicked · bring your best</option></select></label><label class="check-label"><input type="checkbox" id="touch-toggle"> Phone controls</label><label class="check-label"><input type="checkbox" id="reduced-motion"> Reduce screen shake</label></div>
         <p class="lobby-help" id="lobby-help">Phone: left thumbstick + hold action + tap dash. P1: click ground to move, click a target to attack, right-click to dash. Or WASD · Space · hold E. P2: Arrows · Enter dash · Right Shift attack. Gamepad: stick · A/Cross dash · X/Square attack. Press a controller button to connect.</p>
+        <p class="lobby-save-note" id="lobby-save-note" hidden>Starting a new run replaces your unfinished cup. Completed tickets, records, and medals stay. To finish that cup, use Continue Run on the midway.</p>
         <p class="error-message" id="lobby-error" role="alert"></p>
         <div class="lobby-actions"><button class="button primary" id="start-button">ENTER THE CARNIVAL <span>→</span></button><span>Every round explains its rules before the chaos.</span></div>
       </section>
@@ -73,7 +78,7 @@
         <div class="vault-tabs"><button id="tab-records" class="small-button active">HIDDEN RECORDS</button><button id="tab-catalog" class="small-button">THE ACTUAL CARDS & ALBUMS</button></div><div id="catalog-panel" hidden><div id="catalog-grid" class="catalog-grid"></div></div><div id="secret-grid" class="secret-grid"></div>
         <div class="section-heading"><p class="eyebrow">THE SECOND DECK · SIX PLAYABLE RULE TWISTS</p><span>Original game interpretations</span></div>
         <div id="modifier-grid" class="modifier-grid"></div>
-        <div class="vault-note"><strong>The whole catalog belongs in the plan.</strong><p>Both decks are represented in this prototype. The design book also maps sideshows, non-card albums, Forgotten Freshness, and song-based attractions for the full game. New mechanics and story beats are proposals, not claims about ICP canon.</p></div>
+        <div class="vault-note"><strong>The whole catalog belongs in the plan.</strong><p>Both decks are represented in this build. The design book also maps sideshows, non-card albums, Forgotten Freshness, and song-based attractions for the full game. New mechanics and story beats are proposals, not claims about ICP canon.</p></div>
       </section>
 
       <section id="how" class="view inner-view" hidden>
@@ -81,10 +86,10 @@
         <div class="page-heading"><p class="eyebrow">WELCOME TO THE SHOW</p><h2>Easy to learn.<br>Hard to leave.</h2><p>On a phone, drag the left thumbstick to move, hold the action button to attack or catch, and tap Dash to dodge. On a computer, click the ground to move, click a target, and right-click to dash. Or use the keyboard. Every attraction has its own way to win. Attack with E or Right Shift; a gamepad uses its left face button (X / Square).</p></div>
         <div class="how-grid"><article><span class="big-number">01</span><h3>Bring the family</h3><p>One player with bots, two on a keyboard, or up to four with connected gamepads. Everything happens on this screen.</p></article><article><span class="big-number">02</span><h3>Win the midway</h3><p>Collect tickets and play the attraction's objective. Dash through hazards or bump rivals to steal a ticket. Hits cost tickets, then put you straight back in the action.</p></article><article><span class="big-number">03</span><h3>Claim the crown</h3><p>Each round awards 5, 3, 2, or 1 cup points by place. Ties share points. Highest cup total wins; tied champions share the crown.</p></article><article><span class="big-number">04</span><h3>Come back curious</h3><p>The Daily Midway changes with your local calendar date. Beat your personal best, hunt six song secrets, and earn permanent cosmetic looks. No disappearing rewards or streak penalties.</p></article></div>
         <div class="control-table"><div><strong>PHONE / TABLET</strong><span>Left thumbstick · Tap Dash · Hold Attack / Catch / Deflect</span></div><div><strong>KEYBOARD 1</strong><span>W A S D · Space dash · hold E attack</span></div><div><strong>KEYBOARD 2</strong><span>Arrow keys · Enter dash · Right Shift attack</span></div><div><strong>GAMEPAD</strong><span>Stick / D-pad · A / Cross dash · X / Square attack</span></div><div><strong>PAUSE</strong><span>P / Escape · Automatically pauses when you leave</span></div></div>
-        <div class="vault-note"><strong>Prototype notes</strong><p>Progress is saved in this browser on this device. Daily scores are personal, not an online leaderboard. Phone controls appear automatically on touchscreens. Portrait and landscape layouts are supported; sideways gives the arena more room. Touch and mouse control the first human seat. Phone play is solo with bots; online rooms are not included. Music and effects are original synthesized sketches. Actual card artwork and researched character adaptations are included for this local concept. No ICP recordings, lyrics, cloned voices, or endorsements are included.</p><a href="DESIGN.md" target="_blank">Read the full game concept & development plan ↗</a></div>
+        <section class="settings-panel"><p class="eyebrow">MAKE YOURSELF COMFORTABLE</p><h3>Sound & display</h3><div class="settings-grid"><label for="music-volume">MUSIC <output id="music-volume-value">65%</output><input id="music-volume" type="range" min="0" max="100" value="65"></label><label for="effects-volume">EFFECTS <output id="effects-volume-value">80%</output><input id="effects-volume" type="range" min="0" max="100" value="80"></label><label for="graphics-mode">DISPLAY<select id="graphics-mode"><option value="full">Full motion · up to 60 fps</option><option value="battery">Save battery · up to 30 fps</option></select></label><label class="check-label"><input id="settings-shake" type="checkbox"> Reduce screen shake</label></div><p>Display mode changes animation only. Controls and gameplay use the same timing. Completed rounds save automatically; Continue Run restarts the attraction you left.</p></section><div class="vault-note"><strong>Build notes</strong><p>Progress is saved in this browser on this device. Daily scores are personal, not an online leaderboard. Phone controls appear automatically on touchscreens. Portrait and landscape layouts are supported; sideways gives the arena more room. Touch and mouse control the first human seat. Phone play is solo with bots; online rooms are not included. Music and effects are original synthesized audio. Actual card artwork and researched character adaptations are included for this local concept. No ICP recordings, lyrics, cloned voices, or endorsements are included.</p><a href="DESIGN.md" target="_blank">Read the full game concept & development plan ↗</a></div>
       </section>
     </main>
-    <footer class="footer"><span>✦ DARK CHAOS CARNIVAL</span><span>THE MIDWAY IS CALLING.</span><span>PLAYABLE BUILD 0.6 · SEPTEMBER 2026</span></footer>
+    <footer class="footer"><span>✦ DARK CHAOS CARNIVAL</span><span>THE MIDWAY IS CALLING.</span><span>ALPHA 0.7 · OCTOBER 2026</span></footer>
     <div id="loading-screen" class="loading-screen" hidden><div><p class="eyebrow">DARK CHAOS CARNIVAL</p><h2>Opening the gates…</h2><p>Preparing the characters and attractions.</p></div></div>
     <div id="toast" class="toast" role="status" hidden></div>
   </div>
@@ -108,6 +113,7 @@
   <script src="content.js"></script>
   <script src="audio.js"></script>
   <script src="touch-controls.js"></script>
+  <script src="progress.js"></script>
   <script src="game.js"></script>
   <script src="library.js"></script>
   <script src="intro.js"></script>

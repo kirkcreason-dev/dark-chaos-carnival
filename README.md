@@ -1,6 +1,16 @@
-# Dark Chaos Carnival — playable build 0.6
+# Dark Chaos Carnival — Alpha 0.7
 
-A horrorcore party game concept built around ICP’s Joker’s Cards. Play as Violent J, Shaggy 2 Dope, Ringmaster, The Great Milenko, Jack Jeckel, or The Wraith.
+A playable horrorcore party-game alpha built around ICP’s Joker’s Cards. Play as Violent J, Shaggy 2 Dope, Ringmaster, The Great Milenko, Jack Jeckel, or The Wraith.
+
+## New in Alpha 0.7
+
+- **Grand Tour:** six attractions in first-deck order, Rowdy bots, a complete ending, one crown per character, and an earned Carnival Crown cosmetic.
+- **Mastery passbook:** bronze, silver, and gold objective medals for each attraction, best objective counts, play counts, and a visible next goal. Medals reward actual attraction objectives rather than modifier-inflated ticket totals. Local human seats share the passbook.
+- **Continue Run:** completed rounds keep their earnings immediately. Closing or leaving a run restarts only the unfinished attraction with the same layout seed. Reloading the final results pays no duplicate rewards. One unfinished run is retained; starting another replaces it.
+- **Device behavior:** only the active arena is decoded; paused/results screens stop redrawing; hidden gameplay pauses. Battery mode draws at up to 30 fps while retaining the same 60 Hz gameplay timing. Audio nodes disconnect when finished.
+- **Settings and controllers:** independent saved music/effects levels, display preference, reduced shake, and controller navigation through round briefings, results, and pause menus. Start pauses; D-pad selects; A/Cross confirms.
+
+This is an alpha milestone for the local game. It is not a claim of commercial release readiness or completion of the full production design. See `ALPHA.md` for the release boundary and remaining app checks.
 
 ## Play
 
@@ -42,19 +52,19 @@ Rounds last 55 seconds. Three or six rounds make a cup. Each place awards 5 / 3 
 
 ## Permanent progress
 
-Records save immediately when collected. Tickets save when a cup, daily run, or practice finishes. All local human seats share the device’s passbook. Earn cosmetic glows at 100 and 300 tickets. Days played is cumulative, not a streak; missing a day loses nothing. Daily scores are personal, with no online leaderboard or server validation.
+Records save immediately when collected. Tickets and mastery save after each completed round. Continue Run preserves the remaining cup route, characters, inputs, completed scores, and original daily date; the unfinished attraction restarts. A completed run clears its checkpoint. All local human seats share the device’s passbook. Earn cosmetic glows at 100 and 300 tickets, and the Carnival Crown look by winning a Grand Tour. Every character can earn a tour crown. Days played is cumulative, not a streak; missing a day loses nothing. Daily scores are personal, with no online leaderboard or server validation.
 
 ## Scope and status
 
-Actual covers and researched character adaptations are included in this local concept. The game is not an official or endorsed release. It embeds no ICP recordings, lyrics, or cloned voices. Its music is an original synthesized 84 BPM horrorcore sketch.
+Actual covers and researched character adaptations are included in this local concept. The game is not an official or endorsed release. It embeds no ICP recordings, lyrics, or cloned voices. Its music is an original synthesized 84 BPM horrorcore score.
 
-This is a playable prototype: local multiplayer, bots, new art, four-frame movement, six distinct objectives, and saved progression. Choose Chill, Rowdy, or Wicked bots. Daily runs use fixed Rowdy difficulty so attempts use the same rules. Standard attacks shove opponents; dash collisions can steal one ticket.
+This is a playable local alpha: local multiplayer, bots, new art, four-frame movement, six distinct objectives, and saved progression. Choose Chill, Rowdy, or Wicked bots. Daily runs use fixed Rowdy difficulty so attempts use the same rules. Standard attacks shove opponents; dash collisions can steal one ticket.
 
 Online rooms, the full discography, unique character powers, finished directional/attack animation, commercial collaboration, and real fan playtesting remain work to do. Functional tests do not establish that people love it or will return daily.
 
 ## Files
 
-- `index.html`, `styles.css`, `content.js`, `game.js`, `touch-controls.js`, `audio.js`, `library.js`, `catalog.js`, `intro.js`: runnable game.
+- `index.html`, `styles.css`, `content.js`, `game.js`, `touch-controls.js`, `progress.js`, `audio.js`, `library.js`, `catalog.js`, `intro.js`: runnable game.
 - `assets/`: six painted arenas, five sprite sheets, actual cover images, and title art.
 - `DESIGN.md`: complete concept, catalog expansion, daily return loop, market proposition, and production plan.
 - `RESEARCH.md`, `catalog-sources.json`: sources and exact included catalog editions.
@@ -78,10 +88,10 @@ Build the self-contained HTML edition and source ZIP with Python 3:
 npm run build
 ```
 
-Generated files go into `dist/`, which is excluded from Git. The repository contains all game images and audio; no external asset download is required to play. Optional web fonts use system fallbacks offline.
+Generated files go into `dist/`, which is excluded from Git: `Dark-Chaos-Carnival.html` and `Dark-Chaos-Carnival-Alpha.zip`. The repository contains all game images and audio; no external asset download is required to play. Optional web fonts use system fallbacks offline.
 
 ## Open on a phone
 
 Start a local-network preview with `python3 -m http.server 8766 --bind 0.0.0.0` in this game folder. On a phone sharing the computer’s network, open `http://<computer-LAN-IP>:8766/`. Keep the computer and server running. The loopback address `127.0.0.1` only works on the computer hosting the server. Browser progress remains local to each device and address.
 
-The intro assets and storyboard are documented in `assets/intro/README.md`. This repository is the prototype source; pushing it to GitHub does not deploy a public game site.
+The intro assets and storyboard are documented in `assets/intro/README.md`. This repository is the game source; pushing it to GitHub does not deploy a public game site.

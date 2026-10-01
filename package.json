@@ -1,11 +1,13 @@
 {
   "name": "dark-chaos-carnival",
-  "version": "0.6.0",
+  "version": "0.7.0-alpha.1",
   "private": true,
-  "description": "CREASO·NORSE horrorcore carnival party game prototype",
+  "description": "Dark Chaos Carnival \u2014 Grand Tour alpha",
   "scripts": {
-    "test": "node tests/intro.test.cjs && node tests/desktop.test.cjs && node tests/touch.test.cjs",
+    "test": "node tests/intro.test.cjs && node tests/desktop.test.cjs && node tests/touch.test.cjs && node tests/progression.test.cjs && node tests/controller.test.cjs && node tests/audio.test.cjs",
     "build": "python3 scripts/package.py"
   },
-  "engines": { "node": ">=18" }
+  "engines": {
+    "node": ">=18"
+  }
 }
