@@ -20,6 +20,10 @@ This is an alpha milestone for the local game. It is not a claim of commercial r
 
 ## Play
 
+**Play online:** https://kirkcreason-dev.github.io/dark-chaos-carnival/
+
+GitHub Pages publishes the root of `main`. Pushing an update to that branch updates the public game after the Pages deployment finishes. The `.nojekyll` file serves the game as plain static files.
+
 On a computer, open `index.html` in Chrome or Edge with the other files and `assets` folder alongside it. The separate `Dark-Chaos-Carnival.html` edition embeds the game and all images in one file. Neither edition needs an install or build step. Optional web fonts fall back to system fonts offline.
 
 For a local browser preview, run `python3 -m http.server 8765 --bind 127.0.0.1` from this folder and open http://127.0.0.1:8765/. Saves are specific to the browser and address: a local file and the preview do not automatically share progress.
