@@ -40,9 +40,9 @@ async function finishPlayingRound(e) {
     assert.equal(save.mastery[id].best,g.tiers[2]);
   }
   let e=engine({phone:false});await e.click('tour-button');await e.click('start-button');
-  assert.deepEqual(e.snapshot().match.route,[0,1,2,3,4,5]);assert.equal(e.snapshot().match.level,'rowdy');
+  assert.deepEqual(e.snapshot().match.route,[0,1,2,3,4,5]);assert.equal(e.snapshot().match.level,'chill');
   const initial=e.snapshot().round.world;e.tick(.1);
-  await e.click('go-round');e.tick(5);e.key('keydown','KeyD');e.tick(.5);
+  await e.click('go-round');e.tick(5);e.key('keydown','ArrowRight');e.tick(.5);
   let reload=restored(e);assert.equal(reload.get('continue-card').hidden,false);await reload.click('continue-run');
   assert.equal(reload.snapshot().round.state,'intro');assert.deepEqual(reload.snapshot().round.world,initial,'unfinished attraction restarts from the same seed');
   assert.equal(reload.snapshot().players[0].score,0);e=reload;

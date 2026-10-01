@@ -8,7 +8,7 @@ const assert=require('assert/strict'); const {engine:makeEngine}=require('./harn
  assert.equal(e.snapshot().round.state,'playing');assert.equal(e.snapshot().match.level,'chill');
  let killed=0;for(let t=0;t<100;t++){let s=e.snapshot(),d=s.round.world.dummies.filter(d=>d.hp>0).sort((a,b)=>Math.hypot(a.x-s.players[0].x,a.y-s.players[0].y)-Math.hypot(b.x-s.players[0].x,b.y-s.players[0].y))[0];if(d)e.pointer(d.x,d.y-38);e.tick(.12);killed=e.snapshot().players[0].kills;}
  assert(killed>0);assert(e.snapshot().players[0].score>0);
- e.pointer(800,450);e.key('keydown','KeyA');e.tick(.15);e.key('keyup','KeyA');assert.equal(e.snapshot().round.pointer,null);
+ e.pointer(800,450);e.key('keydown','ArrowLeft');e.tick(.15);e.key('keyup','ArrowLeft');assert.equal(e.snapshot().round.pointer,null);
  e.key('keydown','KeyP');const stopped=e.snapshot().round.time;e.tick(2);assert.equal(e.snapshot().round.time,stopped);await e.click('resume');e.tick(60);assert.equal(e.snapshot().round.state,'results');
  for(let n=1;n<3;n++){await e.click('next-round');await e.click('go-round');e.tick(59);assert.equal(e.snapshot().round.state,'results');}await e.click('next-round');assert.equal(e.snapshot().round.state,'complete');assert.equal(e.snapshot().progress.cups,1);
  await e.click('rematch');assert.equal(e.snapshot().round.state,'countdown');e.tick(3.2);e.key('keydown','KeyP');await e.click('quit-match');

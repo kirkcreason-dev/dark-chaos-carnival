@@ -1,10 +1,16 @@
-# Dark Chaos Carnival — Alpha 0.7
+# Dark Chaos Carnival — Alpha 0.7.1
 
 A playable horrorcore party-game alpha built around ICP’s Joker’s Cards. Play as Violent J, Shaggy 2 Dope, Ringmaster, The Great Milenko, Jack Jeckel, or The Wraith.
 
-## New in Alpha 0.7
+## Easier controls in 0.7.1
 
-- **Grand Tour:** six attractions in first-deck order, Rowdy bots, a complete ending, one crown per character, and an earned Carnival Crown cosmetic.
+Arrow keys move the first player; Space dashes. Auto attack/catch is enabled by default, uses normal attack range and cooldown, and adds a nearby objective marker. It never moves the player or shoves rivals automatically. Turn it off in Controls & settings for manual play. Existing saves keep their progress.
+
+Chill mode has slower bots, reduced hit penalties, and a longer recovery window after a hit. Grand Tour now defaults to Chill with selectable difficulty; Daily Midway stays fixed to Rowdy.
+
+## Grand Tour features
+
+- **Grand Tour:** six attractions in first-deck order, selectable bot difficulty, a complete ending, one crown per character, and an earned Carnival Crown cosmetic.
 - **Mastery passbook:** bronze, silver, and gold objective medals for each attraction, best objective counts, play counts, and a visible next goal. Medals reward actual attraction objectives rather than modifier-inflated ticket totals. Local human seats share the passbook.
 - **Continue Run:** completed rounds keep their earnings immediately. Closing or leaving a run restarts only the unfinished attraction with the same layout seed. Reloading the final results pays no duplicate rewards. One unfinished run is retained; starting another replaces it.
 - **Device behavior:** only the active arena is decoded; paused/results screens stop redrawing; hidden gameplay pauses. Battery mode draws at up to 30 fps while retaining the same 60 Hz gameplay timing. Audio nodes disconnect when finished.
@@ -28,14 +34,14 @@ For a local browser preview, run `python3 -m http.server 8765 --bind 127.0.0.1` 
 
 | Input | Move | Dash | Attack / catch / deflect |
 |---|---|---|---|
-| Phone / tablet | Left thumbstick | Tap Dash | Hold the contextual action button |
-| Keyboard 1 | W A S D | Space | E; hold to repeat |
-| Keyboard 2 | Arrow keys | Enter | Right Shift; hold to repeat |
-| Standard gamepad | Stick / D-pad | A / Cross | X / Square |
+| Phone / tablet | Left thumbstick | Tap Dash | Automatic; hold action for manual attack |
+| Keyboard 1 | Arrow keys | Space | Automatic; Right Shift for manual attack |
+| Keyboard 2 | W A S D | Left Shift | Automatic; E for manual attack |
+| Standard gamepad | Stick / D-pad | A / Cross | Automatic; X / Square for manual attack |
 
 For the first human seat, click the ground to move, click an enemy or object to approach and attack/catch it, and right-click to dash. Keyboard movement cancels the mouse destination. Catching a chicken by mouse automatically sends you back to your coop; you can override movement at any time. The action buttons provide another way to attack and dash.
 
-Phone controls appear automatically on touchscreens and narrow screens. You can also enable them in the lobby. Move with your left thumb while holding Attack, Catch, or Deflect with your right; dash is a separate tap with a visible cooldown ring. The stick has a deadzone and supports simultaneous touches. Lifting a finger stops its control; interruption, rotation, or leaving play releases all touches. Portrait and landscape work, with the arena and scores above or between the controls. Landscape gives the arena more room.
+Phone controls appear automatically on touchscreens and narrow screens. You can also enable them in the lobby. Move with your left thumb; nearby attacks, catches, and deflections are automatic by default. Manual action and dash buttons remain available; dash has a visible cooldown ring. The stick has a deadzone and supports simultaneous touches. Lifting a finger stops its control; interruption, rotation, or leaving play releases all touches. Portrait and landscape work, with the arena and scores above or between the controls. Landscape gives the arena more room.
 
 P or Escape pauses. Leaving the browser pauses automatically. Sound starts after entering a match and can be muted in the match toolbar. Fullscreen is available in the desktop toolbar. Reduce screen shake in the lobby. Phone layouts and touch event handling have been checked; physical iPhone and Android browser testing is still needed.
 

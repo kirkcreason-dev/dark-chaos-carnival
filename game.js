@@ -38,7 +38,7 @@ function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y);}
 let mode='party',practiceIndex=0,scene='home',match=null,round=null,rng=Math.random,players=[],particles=[],floaters=[],keys=new Set(),pressedActions=new Set(),shake=0,lastFrame=0,accumulator=0,simTick=0;
 let toastTimer,viewBeforePause,gamepads=[],currentDay=dateKey(),audio=null,soundOn=save.sound!==false,lastBeat=-1;
 let activeInputDefaults=['key1','key2','cpu','cpu'];
-const keysOne=['KeyW','KeyA','KeyS','KeyD','Space','KeyE'],keysTwo=['ArrowUp','ArrowLeft','ArrowDown','ArrowRight','Enter','ShiftRight'];
+const keysOne=['ArrowUp','ArrowLeft','ArrowDown','ArrowRight','Space','ShiftRight'],keysTwo=['KeyW','KeyA','KeyS','KeyD','ShiftLeft','KeyE'];
 
 function toast(message){$('toast').innerHTML=message;$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').hidden=true,4500);}
 function showView(id){viewRevision++;touch?.reset();all('.view').forEach(e=>e.hidden=e.id!==id);all('.nav-button').forEach(b=>b.classList.toggle('active',b.dataset.view===id));scene=id;$('loading-screen').hidden=true;pointerIntent=null;document.body.classList.remove('warming-up');document.body.classList.toggle('in-game',id==='game');keys.clear();pressedActions.clear();if(id==='home'||id==='vault')refreshProgress();window.scrollTo({top:0,behavior:'instant'});}
@@ -73,12 +73,12 @@ function openLobby(nextMode,index=0){
  $('lobby-title').textContent=mode==='tour'?'Conquer the six-card tour.':mode==='daily'?'Today’s route. Your best run.':mode==='practice'?C.booths[index].title:mode==='solo'?'One soul. Three rivals.':'Gather your homies.';
  $('lobby-eyebrow').textContent=mode==='tour'?'THE GRAND TOUR · SIX CARDS · ONE CROWN':mode==='daily'?`DAILY MIDWAY · ${dateKey()}`:mode==='practice'?'PRACTICE BOOTH':mode==='solo'?'SOLO WITH BOTS':'LOCAL MULTIPLAYER';
  $('lobby-subtitle').textContent=mode==='tour'?'Visit every first-deck attraction in order. Win the cup to earn your character’s crown and the Carnival Crown look. Your completed rounds are saved.':mode==='daily'?'A seeded, three-round solo challenge. Beat your personal best on this device.':mode==='practice'?'One attraction. Learn its rules, find its secret, then bring your friends.':'Four contestants. One crown. Fill empty seats with carnival bots.';
- $('cup-length').disabled=['daily','practice','tour'].includes(mode);$('bot-level').disabled=mode==='daily'||mode==='tour';if(mode==='tour')$('cup-length').value='6';if(mode==='daily'||mode==='tour')$('bot-level').value='rowdy';$('lobby-error').textContent='';$('reduced-motion').checked=save.reduced||window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ $('cup-length').disabled=['daily','practice','tour'].includes(mode);$('bot-level').disabled=mode==='daily';if(mode==='tour')$('cup-length').value='6';$('bot-level').value=mode==='daily'?'rowdy':'chill';$('lobby-error').textContent='';$('reduced-motion').checked=save.reduced||window.matchMedia('(prefers-reduced-motion: reduce)').matches;
  $('lobby-save-note').hidden=!save.checkpoint;$('start-button').textContent='ENTER THE CARNIVAL →';
  renderSeats();refreshProgress();showView('lobby');
 }
 function renderSeats(){
- $('player-seats').innerHTML=C.names.map((name,i)=>`<article class="seat" style="--seat-color:${C.colors[i]};--seat-glow:${C.colors[i]}1d"><div class="seat-number"><span>PLAYER 0${i+1}</span><span>✦</span></div>${avatarSVG(C.colors[i],i,save.look)}<h3>${C.characters[selectedCharacters[i]].name}</h3><p>${C.characters[selectedCharacters[i]].role}</p><select class="character-select" aria-label="Player ${i+1} character" id="character-${i}">${C.characters.map((ch,n)=>`<option value="${n}" ${n===selectedCharacters[i]?'selected':''}>${ch.name}</option>`).join('')}</select><select aria-label="Player ${i+1} input" id="input-${i}" ${['daily','tour'].includes(mode)&&i>0?'disabled':''}><option value="key1">${touch?.enabled?'Touch / Keyboard · WASD':'Keyboard · WASD'}</option><option value="key2">Keyboard · Arrows</option><option value="pad0">Gamepad 1</option><option value="pad1">Gamepad 2</option><option value="pad2">Gamepad 3</option><option value="pad3">Gamepad 4</option><option value="cpu">Carnival bot</option></select></article>`).join('');
+ $('player-seats').innerHTML=C.names.map((name,i)=>`<article class="seat" style="--seat-color:${C.colors[i]};--seat-glow:${C.colors[i]}1d"><div class="seat-number"><span>PLAYER 0${i+1}</span><span>✦</span></div>${avatarSVG(C.colors[i],i,save.look)}<h3>${C.characters[selectedCharacters[i]].name}</h3><p>${C.characters[selectedCharacters[i]].role}</p><select class="character-select" aria-label="Player ${i+1} character" id="character-${i}">${C.characters.map((ch,n)=>`<option value="${n}" ${n===selectedCharacters[i]?'selected':''}>${ch.name}</option>`).join('')}</select><select aria-label="Player ${i+1} input" id="input-${i}" ${['daily','tour'].includes(mode)&&i>0?'disabled':''}><option value="key1">${touch?.enabled?'Touch / Keyboard · Arrows':'Keyboard · Arrows'}</option><option value="key2">Keyboard · WASD</option><option value="pad0">Gamepad 1</option><option value="pad1">Gamepad 2</option><option value="pad2">Gamepad 3</option><option value="pad3">Gamepad 4</option><option value="cpu">Carnival bot</option></select></article>`).join('');
  activeInputDefaults.forEach((v,i)=>$('input-'+i).value=v);
  C.names.forEach((_,i)=>$('character-'+i).onchange=()=>{selectedCharacters[i]=Number($('character-'+i).value);activeInputDefaults=C.names.map((_,n)=>$('input-'+n).value);renderSeats();});
 }
@@ -124,6 +124,7 @@ function setupSettings(){
  $('music-volume-value').textContent=Math.round(save.music*100)+'%';$('effects-volume-value').textContent=Math.round(save.effects*100)+'%';
  $('graphics-mode').onchange=()=>{save.graphics=$('graphics-mode').value==='battery'?'battery':'full';persist();};
  $('settings-shake').onchange=()=>{save.reduced=$('settings-shake').checked;persist();};
+ $('auto-action').checked=save.autoAction;$('auto-action').onchange=()=>{save.autoAction=$('auto-action').checked;persist();};
 }
 
 async function startMatch(){
@@ -150,7 +151,45 @@ async function startMatch(){
 $('start-button').onclick=startMatch;
 async function quickPlay(){if(startInFlight)return;openLobby('solo');quickRequest=true;$('bot-level').value='chill';if(save.checkpoint){$('start-button').textContent='START A NEW QUICK CUP →';return;}$('loading-screen').hidden=false;return startMatch();}
 
-function controlTip(booth){return touch?.enabled?booth.tip.replace('E / Right Shift: attack.', 'Hold ATTACK.').replace('E / Right Shift: catch.', 'Hold CATCH.').replace('E / Right Shift shoves rivals.', 'Hold ATTACK to shove rivals.').replace('E / Right Shift:', 'Hold ATTACK to'):booth.tip;}
+function dashKey(p){return p?.control==='key2'?'LEFT SHIFT':p?.control?.startsWith('pad')?'A / CROSS':'SPACE';}
+function attackKey(p){return p?.control==='key2'?'E':p?.control?.startsWith('pad')?'X / SQUARE':'RIGHT SHIFT';}
+function inputHint(){
+ const p=pointerPlayer(),auto=save.autoAction?'Auto attack ON':`Attack: ${attackKey(p)}`;
+ if(touch?.enabled)return `Thumbstick: move · Tap DASH · ${save.autoAction?'Auto attack ON':'Hold action to attack'}`;
+ return `${p?.control==='key2'?'WASD':p?.control?.startsWith('pad')?'Stick / D-pad':'Arrow keys'}: move · ${dashKey(p)}: dash · ${auto}`;
+}
+function easyRule(booth){return {
+ carnage:'Move toward the marked dummy. You swing automatically when you get close. Keep moving between dummies to build a chain.',
+ ringmaster:'Get close to a chicken to catch it automatically. Follow the arrow back to your glowing coop, then go for another.',
+ riddle:'Match the symbol at the top of the arena. Follow the marker to a matching floor tile before the countdown ends.',
+ milenko:'Collect relics with a gold center. Walk close to mirrors to smash them automatically. Dash to expose fake prizes.',
+ jeckel:'Move near the fireballs to bat them back automatically. Dash through danger when you need space.',
+ wraith:'Collect blue souls, then follow the arrow to the glowing gate. Only delivered souls score.'
+ }[booth.id];}
+function controlTip(booth){
+ if(save.autoAction)return {carnage:'Get close → auto-attack. Chain kills for bonus tickets.',ringmaster:'Get close → catch. Follow the arrow to your coop.',riddle:'Match the symbol. Follow the marker to safe floor.',milenko:'Gold centers are real. Get close to mirrors → auto-smash.',jeckel:'Get close → auto-deflect. Each return earns 3 tickets.',wraith:'Collect souls → follow the arrow → deliver at the lit gate.'}[booth.id];
+ return booth.tip.replaceAll('E / Right Shift',touch?.enabled?'Hold the action button':attackKey(pointerPlayer()));
+}
+// Assistance uses the same range and cooldown as a manual strike. It never
+// moves the player, picks hidden prizes, or automatically shoves other players.
+function nearbyActionTarget(p){
+ const id=round.booth.id;
+ const objects=id==='carnage'?round.dummies.filter(d=>d.hp>0):id==='ringmaster'&&!p.carry?round.chickens:id==='milenko'?[...round.shades,...round.mirrors.filter(m=>m.hp>0)]:id==='jeckel'?round.hazards.filter(h=>h.grace<=0):[];
+ const reach=id==='carnage'?88:id==='ringmaster'?78:id==='jeckel'?96:86;
+ return objects.find(q=>dist(p,q)<reach);
+}
+function objectiveTarget(p){
+ if(!save.autoAction||!['playing','warmup'].includes(round.state))return null;
+ const near=items=>items.reduce((best,q)=>!best||dist(p,q)<dist(p,best)?q:best,null);
+ switch(round.booth.id){
+ case 'carnage':return near(round.dummies.filter(q=>q.hp>0));
+ case 'ringmaster':return p.carry?coopFor(p.id):near(round.chickens);
+ case 'riddle':return near(round.tiles.flatMap((symbol,i)=>symbol===round.safe?[tileCenter(i)]:[]));
+ case 'milenko':return near(round.mirrors.filter(q=>q.hp>0));
+ case 'jeckel':return near(round.hazards.filter(q=>q.grace<=0));
+ case 'wraith':return p.carry>=3?{x:round.gate?892:108,y:330}:hiddenPrizes()?null:near(round.items);
+ }
+}
 function beginRound(writeCheckpoint=true){
  touch?.reset();rng=seeded(hash(`DCC-round-v2:${match.seed}:${match.roundIndex}`));
  if(writeCheckpoint)checkpointRun(match.roundIndex);
@@ -169,7 +208,7 @@ function beginRound(writeCheckpoint=true){
  $('round-eyebrow').textContent=`${match.mode==='tour'?'GRAND TOUR · ':match.mode==='daily'?'DAILY MIDWAY · ':''}ROUND ${String(match.roundIndex+1).padStart(2,'0')} / ${String(match.route.length).padStart(2,'0')} · ${booth.card.toUpperCase()}`;
  $('round-title').textContent=booth.title;$('modifier-label').textContent=`II / ${modifier.card.toUpperCase()}`;
  updateHUD();
- overlay(`<div class="briefing-art"><img src="${assetURL(`assets/cards/${booth.id}.jpg`)}" alt="${booth.card}"></div><p class="eyebrow">${booth.tagline}</p><h2>${booth.title}</h2><p>${booth.rule}</p><div class="overlay-rule curse-rule"><img src="${assetURL(`assets/cards/${modifier.id==='link'?'lost':modifier.id}.jpg`)}" alt="${modifier.card}"><p><b>${modifier.card}</b><br>${modifier.text}</p></div><p class="overlay-controls">${controlTip(booth)}<br>${touch?.enabled?'MOVE: left thumbstick · TAP DASH · HOLD ACTION':'MOVE: WASD / Arrows · DASH: Space / Enter · ATTACK: E / Right Shift'}</p><button class="button primary" id="go-round">LET THE CHAOS BEGIN <span>→</span></button>`);
+ overlay(`<div class="briefing-art"><img src="${assetURL(`assets/cards/${booth.id}.jpg`)}" alt="${booth.card}"></div><p class="eyebrow">${booth.tagline}</p><h2>${booth.title}</h2><p>${save.autoAction?easyRule(booth):booth.rule}</p><div class="overlay-rule curse-rule"><img src="${assetURL(`assets/cards/${modifier.id==='link'?'lost':modifier.id}.jpg`)}" alt="${modifier.card}"><p><b>${modifier.card}</b><br>${modifier.text}</p></div><p class="overlay-controls">${controlTip(booth)}<br>${inputHint()}</p><button class="button primary" id="go-round">LET THE CHAOS BEGIN <span>→</span></button>`);
  $('go-round').onclick=startCountdown;
 }
 function startCountdown(){if(!round||round.state!=='intro')return;touch?.reset();round.state='countdown';round.countdown=3;players.forEach(p=>{p.held=p.control.startsWith('pad')&&!!readGamepads()[Number(p.control.slice(3))]?.buttons[0]?.pressed;});keys.clear();pressedActions.clear();pointerIntent=null;$('game-overlay').hidden=true;canvas.focus({preventScroll:true});sound(220,.16,'sine');}
@@ -185,10 +224,10 @@ function hiddenPrizes(){return round.modifier.id==='naught'&&round.time%12>=9;}
 function inputFor(p,dt){
  if(!p.human)return botInput(p,dt);
  let x=0,y=0,action=false,attack=false;
- if(p.control==='key1'){x=Number(keys.has('KeyD'))-Number(keys.has('KeyA'));y=Number(keys.has('KeyS'))-Number(keys.has('KeyW'));action=keys.has('Space');attack=keys.has('KeyE');}
- else if(p.control==='key2'){x=Number(keys.has('ArrowRight'))-Number(keys.has('ArrowLeft'));y=Number(keys.has('ArrowDown'))-Number(keys.has('ArrowUp'));action=keys.has('Enter');attack=keys.has('ShiftRight');}
+ if(p.control==='key1'){x=Number(keys.has('ArrowRight'))-Number(keys.has('ArrowLeft'));y=Number(keys.has('ArrowDown'))-Number(keys.has('ArrowUp'));action=keys.has('Space');attack=keys.has('ShiftRight');}
+ else if(p.control==='key2'){x=Number(keys.has('KeyD'))-Number(keys.has('KeyA'));y=Number(keys.has('KeyS'))-Number(keys.has('KeyW'));action=keys.has('ShiftLeft');attack=keys.has('KeyE');}
  else {const pad=gamepads[Number(p.control.slice(3))];if(pad){x=pad.axes[0]||0;y=pad.axes[1]||0;if(Math.abs(x)<.18)x=0;if(Math.abs(y)<.18)y=0;x+=Number(pad.buttons[15]?.pressed||false)-Number(pad.buttons[14]?.pressed||false);y+=Number(pad.buttons[13]?.pressed||false)-Number(pad.buttons[12]?.pressed||false);action=!!pad.buttons[0]?.pressed;attack=!!pad.buttons[2]?.pressed;}}
- const queued=p.control==='key1'?'Space':p.control==='key2'?'Enter':null;const tap=(action&&!p.held)||(queued&&pressedActions.has(queued));if(queued)pressedActions.delete(queued);p.held=action;const aq=p.control==='key1'?'KeyE':p.control==='key2'?'ShiftRight':null;const strike=(attack&&!p.attackHeld)||(aq&&pressedActions.has(aq));if(aq)pressedActions.delete(aq);p.attackHeld=attack;const manual=Math.abs(x)+Math.abs(y)>.1;if(p.id===pointerPlayer()?.id){
+ const queued=p.control==='key1'?'Space':p.control==='key2'?'ShiftLeft':null;const tap=(action&&!p.held)||(queued&&pressedActions.has(queued));if(queued)pressedActions.delete(queued);p.held=action;const aq=p.control==='key1'?'ShiftRight':p.control==='key2'?'KeyE':null;const strike=(attack&&!p.attackHeld)||(aq&&pressedActions.has(aq));if(aq)pressedActions.delete(aq);p.attackHeld=attack;const manual=Math.abs(x)+Math.abs(y)>.1;if(p.id===pointerPlayer()?.id){
   const ti=touch?.read();if(manual||ti?.steering)pointerIntent=null;
   if(!manual&&ti?.steering){x=ti.x;y=ti.y;}
   const pi=pointerInput(p);if(!manual&&!ti?.steering&&pi){x=pi.x;y=pi.y;attack=attack||pi.attack;}
@@ -249,7 +288,7 @@ function beginWarmup(){
  document.body.classList.add('warming-up');round.state='warmup';round.time=0;round.items=[];round.hazards=[];round.blasts=[];round.dummies=[];
  players[0].x=300;players[0].y=355;players[0].inv=0;
  warmup={stage:0,moved:0,dashed:false,time:0};pointerIntent=null;
- $('game-overlay').hidden=true;$('round-title').textContent='Move. Dash. Hit.';
+ $('game-overlay').hidden=true;$('round-title').textContent='Move. Dash. Get close.';
  $('round-eyebrow').textContent='A QUICK WARM-UP · NO TIMER · NO PENALTIES';
  $('warmup-next').hidden=false;$('warmup-next').textContent='SKIP WARM-UP →';
  $('warmup-next').onclick=endWarmup;updateHUD();canvas.focus({preventScroll:true});
@@ -270,20 +309,21 @@ function stepWarmup(dt){
  const walked=dist(p,before);p.walkDistance+=walked;warmup.moved+=walked;
  if(warmup.stage===0&&warmup.moved>95){warmup.stage=1;emit(p.x,p.y,p.color,15);}
  if(warmup.stage===1&&warmup.dashed){warmup.stage=2;round.dummies=[{x:p.x<500?780:250,y:355,hp:2,flash:0,speed:0,phase:0,faceX:-1}];}
- if(input.attack&&p.attackCD<=0)performAttack(p);
+ if(p.attackCD<=0){if(input.attack)performAttack(p);else if(p.human&&save.autoAction&&nearbyActionTarget(p))performAttack(p,true);}
  round.dummies.forEach(d=>d.flash=Math.max(0,d.flash-dt));round.dummies=round.dummies.filter(d=>d.hp>0);
  if(warmup.stage===2&&p.kills>0){warmup.stage=3;pointerIntent=null;$('warmup-next').textContent='START THE CUP →';emit(p.x,p.y,'#d4ef74',25);}
  particles.forEach(q=>{q.x+=q.vx*dt;q.y+=q.vy*dt;q.life-=dt;});particles=particles.filter(q=>q.life>0);
  floaters.forEach(f=>{f.y-=25*dt;f.life-=dt;});floaters=floaters.filter(f=>f.life>0);shake=Math.max(0,shake-dt*20);
- updatePlayAssist();$('round-time').innerHTML='∞<span>WARM-UP</span>';$('live-rule').textContent=(touch?.enabled?['Drag the left thumbstick to move toward the marker.','Keep steering and tap DASH with your right thumb.','Move close to the dummy, face it, and hold ATTACK.','You’re ready. Start the cup when you want.']:['Click the marked ground, or move with WASD.','Right-click a direction, press Space, or hit the DASH button.','Click the dummy to chase and attack. Or get close and hold E.','That’s it. Start the cup when you’re ready.'])[warmup.stage];
+ updatePlayAssist();$('round-time').innerHTML='∞<span>WARM-UP</span>';$('live-rule').textContent=(touch?.enabled?['Drag the left thumbstick toward the marker.','Keep steering and tap DASH. ',save.autoAction?'Move close to the dummy. Attacks happen automatically.':'Move close and hold ATTACK.','You’re ready. Start the cup.']:['Use the ARROW KEYS to reach the marker.','Keep moving and tap SPACE to dash.',save.autoAction?'Walk up to the dummy. You attack automatically.':'Get close and hold RIGHT SHIFT to attack.','That’s it. Start the cup when you’re ready.'])[warmup.stage];
 }
 function updatePlayAssist(){
  const p=pointerPlayer();if(!p||!round)return;
  touch?.update({active:['playing','warmup'].includes(round.state),booth:round.booth.id,cooldown:p.cd,total:round.modifier.id==='fury'?1.25:1.9});
  $('pointer-dash').disabled=p.cd>0||!['playing','warmup'].includes(round.state);
- $('pointer-dash').textContent=p.cd>0?`DASH · ${p.cd.toFixed(1)}s`:'DASH · SPACE';
+ $('pointer-dash').textContent=p.cd>0?`DASH · ${p.cd.toFixed(1)}s`:`DASH · ${dashKey(p)}`;
  $('pointer-attack').disabled=p.attackCD>0||!['playing','warmup'].includes(round.state);
- $('pointer-attack').textContent=round.booth.id==='ringmaster'?'CATCH · E':round.booth.id==='jeckel'?'DEFLECT · E':'ATTACK · E';
+ $('pointer-attack').textContent=(round.booth.id==='ringmaster'?'CATCH':round.booth.id==='jeckel'?'DEFLECT':'ATTACK')+' · '+(save.autoAction?'AUTO':attackKey(p));
+ $('input-help').textContent=inputHint();
  if(warmup&&['warmup','paused'].includes(round.state)){
   $('objective-status').textContent=['1 / 3 · MOVE','2 / 3 · DASH','3 / 3 · BREAK THE DUMMY','READY TO RAISE HELL'][warmup.stage];return;
  }
@@ -293,7 +333,7 @@ function updatePlayAssist(){
 }
 function drawPointerGuide(){
  const p=pointerPlayer();if(!p)return;
- let target=pointerIntent?.object||pointerIntent;
+ let target=pointerIntent?.object||pointerIntent||objectiveTarget(p);
  if(round.state==='warmup'&&warmup.stage===0)target={x:440,y:355};
  if(round.state==='warmup'&&warmup.stage===2)target=round.dummies[0];
  if(target){
@@ -308,8 +348,8 @@ function drawPointerGuide(){
  }
  if(round.state==='warmup'){
   rect(230,15,540,65,7,'#100910ee','#94716a');
-  textLabel((touch?.enabled?['DRAG THE LEFT THUMBSTICK','KEEP MOVING + TAP DASH','GET CLOSE + HOLD ATTACK','YOU’RE READY. START THE CUP BELOW.']:['CLICK THE MARKED GROUND / WASD','RIGHT-CLICK / SPACE TO DASH','CLICK THE DUMMY / GET CLOSE + HOLD E','YOU’RE READY. START THE CUP BELOW.'])[warmup.stage],500,40,15,'#f3e8d8');
-  textLabel(['Move → Dash → Attack','A dash gets you through danger','Two hits. Watch the red health bar.','Most tickets wins the round. Most cup points wins.'][warmup.stage],500,62,11,'#d4ef74');
+  textLabel((touch?.enabled?['DRAG THE LEFT THUMBSTICK','KEEP MOVING + TAP DASH',save.autoAction?'GET CLOSE — ATTACK IS AUTOMATIC':'GET CLOSE + HOLD ATTACK','YOU’RE READY. START THE CUP BELOW.']:['ARROW KEYS TO MOVE','KEEP MOVING + TAP SPACE',save.autoAction?'GET CLOSE — ATTACK IS AUTOMATIC':'GET CLOSE + HOLD RIGHT SHIFT','YOU’RE READY. START THE CUP BELOW.'])[warmup.stage],500,40,15,'#f3e8d8');
+  textLabel(['Move → Dash → Attack','A dash gets you through danger',save.autoAction?'Follow the marker. No attack button needed.':'Two hits. Watch the red health bar.','Most tickets wins the round. Most cup points wins.'][warmup.stage],500,62,11,'#d4ef74');
  }
 }
 
@@ -338,7 +378,7 @@ function emit(x,y,color,count=12){for(let i=0;i<count&&particles.length<180;i++)
 function hit(p,value=-3){
  if(round.state==='warmup'||p.inv>0||p.dash>0)return;
  if(round.booth.id==='ringmaster'&&p.carry){p.carry=0;spawnChicken(p.x,p.y);}
- addScore(p,value);p.inv=1.1;if(round.booth.id==='wraith'&&p.carry){for(let i=0;i<p.carry;i++)round.items.push({x:clamp(p.x+(rng()-.5)*80,bounds.left+15,bounds.right-15),y:clamp(p.y+(rng()-.5)*80,bounds.top+15,bounds.bottom-15),id:rng(),fake:false,bonus:false,r:10,phase:rng()*6,revealed:0});p.carry=0;}
+ addScore(p,p.human&&match.level==='chill'?Math.ceil(value/2):value);p.inv=p.human&&match.level==='chill'?1.6:1.1;if(round.booth.id==='wraith'&&p.carry){for(let i=0;i<p.carry;i++)round.items.push({x:clamp(p.x+(rng()-.5)*80,bounds.left+15,bounds.right-15),y:clamp(p.y+(rng()-.5)*80,bounds.top+15,bounds.bottom-15),id:rng(),fake:false,bonus:false,r:10,phase:rng()*6,revealed:0});p.carry=0;}
  if(round.modifier.id==='fury')p.cd=0;
  if(p.human){shake=save.reduced?0:5;sound(90,.1,'sawtooth');}emit(p.x,p.y,'#f388b2',9);
 }
@@ -373,9 +413,9 @@ function step(dt){
   p.cd=Math.max(0,p.cd-dt);p.dash=Math.max(0,p.dash-dt);p.inv=Math.max(0,p.inv-dt);p.bump=Math.max(0,p.bump-dt);p.reveal=Math.max(0,p.reveal-dt);p.attackCD=Math.max(0,p.attackCD-dt);p.attackTime=Math.max(0,p.attackTime-dt);p.chainClock=Math.max(0,p.chainClock-dt);if(p.chainClock<=0)p.chain=0;
   const input=inputFor(p,dt),len=Math.hypot(input.x,input.y),ix=len>1?input.x/len:input.x,iy=len>1?input.y/len:input.y;
   if(len>.1){p.faceX=ix/(Math.hypot(ix,iy)||1);p.faceY=iy/(Math.hypot(ix,iy)||1);}
-  if(input.attack&&p.attackCD<=0)performAttack(p);
+  if(p.attackCD<=0){if(input.attack)performAttack(p);else if(p.human&&save.autoAction&&nearbyActionTarget(p))performAttack(p,true);}
   if(input.action&&p.cd<=0){p.dash=.2;p.cd=mid==='fury'?1.25:1.9;p.vx=p.faceX*650;p.vy=p.faceY*650;p.reveal=.45;round.items.forEach(q=>{if(dist(p,q)<155)q.revealed=2.3;});round.secrets.forEach(q=>{if(q.owner===p.id&&dist(p,q)<150)q.revealed=true;});emit(p.x,p.y,p.color,9);if(p.human)sound(340,.06,'triangle');}
-  if(p.dash<=0){const slow=mid==='bedlam'&&Math.hypot(p.x-500,p.y-340)<115?.6:1,speed=210*slow*(p.human?1:match.level==='chill'?.78:match.level==='wicked'?1:.9);p.vx+=(ix*speed-p.vx)*Math.min(1,dt*16);p.vy+=(iy*speed-p.vy)*Math.min(1,dt*16);}
+  if(p.dash<=0){const slow=mid==='bedlam'&&Math.hypot(p.x-500,p.y-340)<115?.6:1,speed=210*slow*(p.human?1:match.level==='chill'?.70:match.level==='wicked'?1:.9);p.vx+=(ix*speed-p.vx)*Math.min(1,dt*16);p.vy+=(iy*speed-p.vy)*Math.min(1,dt*16);}
   p.walkDistance+=Math.hypot(p.vx,p.vy)*dt;
   p.x=clamp(p.x+p.vx*dt,bounds.left+18,bounds.right-18);p.y=clamp(p.y+p.vy*dt,bounds.top+18,bounds.bottom-18);
   if(bid==='riddle'&&round.time%6>=4&&round.tiles[tileAt(p)]!==round.safe&&p.dash<=0){hit(p,-4);const safe=round.tiles.map((t,i)=>t===round.safe?tileCenter(i):null).filter(Boolean).sort((a,b)=>dist(p,a)-dist(p,b))[0];p.x=safe.x;p.y=safe.y;p.vx=p.vy=0;emit(p.x,p.y,p.color,12);}
@@ -407,10 +447,10 @@ function step(dt){
 function coopFor(id){return {x:id%2?864:136,y:id<2?245:465};}
 function spawnDummy(){const q=randPoint();round.dummies.push({...q,hp:2,flash:0,speed:36+rng()*26,phase:rng()*6});}
 function spawnChicken(x,y){const q=x!==undefined?{x,y}:randPoint(),a=rng()*6.28;round.chickens.push({...q,vx:Math.cos(a)*35,vy:Math.sin(a)*35,think:0,phase:rng()*6});}
-function performAttack(p){
+function performAttack(p,automatic=false){
  p.attackTime=.22;p.attackCD=p.human?.4:match.level==='chill'?1.15:match.level==='wicked'?.58:.85;const id=round.booth.id;
  if(p.human&&soundOn)window.CarnivalAudio?.fx('swipe');
- for(const other of players){if(round.state==='warmup'||other.id===p.id||dist(p,other)>86||other.inv>0)continue;const d=dist(p,other)||1,dx=(other.x-p.x)/d,dy=(other.y-p.y)/d;if(dx*p.faceX+dy*p.faceY<-.2)continue;
+ for(const other of players){if(automatic||round.state==='warmup'||other.id===p.id||dist(p,other)>86||other.inv>0)continue;const d=dist(p,other)||1,dx=(other.x-p.x)/d,dy=(other.y-p.y)/d;if(dx*p.faceX+dy*p.faceY<-.2)continue;
   other.inv=.85;other.x=clamp(other.x+dx*35,bounds.left+18,bounds.right-18);other.y=clamp(other.y+dy*35,bounds.top+18,bounds.bottom-18);if(id==='ringmaster'&&other.carry){other.carry=0;spawnChicken(other.x,other.y);}emit(other.x,other.y,p.color,8);
  }
  if(id==='carnage')for(const d of round.dummies){if(d.hp<=0||dist(p,d)>92)continue;d.hp--;d.flash=.25;if(p.human&&!save.reduced)shake=2;if(p.human&&soundOn)window.CarnivalAudio?.fx('hit');d.x=clamp(d.x+p.faceX*24,bounds.left+20,bounds.right-20);d.y=clamp(d.y+p.faceY*24,bounds.top+20,bounds.bottom-20);emit(d.x,d.y,'#bc3754',13);if(d.hp<=0){p.kills++;p.chain=p.chainClock>0?p.chain+1:1;p.chainClock=3.2;reward(p,5+Math.min(4,p.chain-1),d);round.splats.push({x:d.x,y:d.y,r:18+rng()*12,angle:rng()*6});}}
@@ -493,7 +533,7 @@ function pauseGame(message='Take a breath. The carnival can wait.'){
 function resumeGame(){if(round?.state!=='paused')return;touch?.reset();if(soundOn)initAudio();round.state=viewBeforePause;players.forEach(p=>{p.held=p.control.startsWith('pad')&&!!readGamepads()[Number(p.control.slice(3))]?.buttons[0]?.pressed;});$('game-overlay').hidden=true;keys.clear();pressedActions.clear();canvas.focus({preventScroll:true});}
 touch?.bind({canPlay:()=>scene==='game'&&['playing','warmup'].includes(round?.state),onInterrupt:()=>{if(scene==='game')pauseGame('Phone rotated. Get comfortable, then jump back in.');}});
 $('pause-button').onclick=()=>round?.state==='paused'?resumeGame():pauseGame();
-window.addEventListener('keydown',e=>{if(scene!=='game')return;if((e.code==='KeyP'||e.code==='Escape')&&!e.repeat){e.preventDefault();if(round?.state==='paused')resumeGame();else pauseGame();return;}if(!['playing','countdown','warmup'].includes(round?.state))return;if([...keysOne,...keysTwo].includes(e.code))e.preventDefault();if((e.code==='Space'||e.code==='Enter'||e.code==='KeyE'||e.code==='ShiftRight')&&!e.repeat&&['playing','warmup'].includes(round.state))pressedActions.add(e.code);keys.add(e.code);});
+window.addEventListener('keydown',e=>{if(scene!=='game')return;if((e.code==='KeyP'||e.code==='Escape')&&!e.repeat){e.preventDefault();if(round?.state==='paused')resumeGame();else pauseGame();return;}if(!['playing','countdown','warmup'].includes(round?.state))return;if([...keysOne,...keysTwo].includes(e.code))e.preventDefault();if((e.code==='Space'||e.code==='ShiftLeft'||e.code==='KeyE'||e.code==='ShiftRight')&&!e.repeat&&['playing','warmup'].includes(round.state))pressedActions.add(e.code);keys.add(e.code);});
 window.addEventListener('keyup',e=>keys.delete(e.code));window.addEventListener('blur',()=>{keys.clear();pressedActions.clear();if(scene==='game')pauseGame();});document.addEventListener('visibilitychange',()=>{if(document.hidden){keys.clear();pressedActions.clear();if(scene==='game')pauseGame();}});
 window.addEventListener('pagehide',()=>{keys.clear();pressedActions.clear();if(scene==='game')pauseGame();});
 window.addEventListener('gamepadconnected',e=>toast(`Controller connected: ${e.gamepad.id.split('(')[0]}`));

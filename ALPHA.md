@@ -1,11 +1,11 @@
-# Dark Chaos Carnival — Alpha 0.7
+# Dark Chaos Carnival — Alpha 0.7.1
 
 This milestone completes the local six-attraction loop with a beginning, full tour, ending, persistent mastery, and recovery from interrupted sessions. It is a development alpha, not a production launch label. No changes have been made to the Psychopathic app as part of this milestone.
 
 ## The player journey
 
 1. Play Now teaches movement, dash, and attack inside the arena, then starts a quick cup.
-2. Grand Tour lets the player choose a character and face all six first-deck attractions in order with Rowdy bots. The second deck changes the rules in each round.
+2. Grand Tour lets the player choose a character and face all six first-deck attractions in order with Chill bots by default and selectable difficulty. The second deck changes the rules in each round.
 3. Every finished attraction saves tickets and objective mastery. Bronze, silver, and gold thresholds are shown on the midway. Better results never erase earlier medals.
 4. Win the tour to claim that character’s crown and the Carnival Crown cosmetic. The ending invites another character, mastery goals, records, or the next daily route.
 5. Continue Run restores the next uncompleted attraction, the original daily date, and previous standings. An interrupted attraction restarts. A saved final-result screen can be claimed once.
@@ -14,7 +14,7 @@ This milestone completes the local six-attraction loop with a beginning, full to
 
 - Six attractions, six named characters, six second-deck modifiers, 18 mastery medals, six character crowns, six hidden records, and the existing 18-release archive.
 - Solo bots, two shared-keyboard players, or up to four local players with gamepads. Phone controls operate one human seat.
-- Full tour, quick/custom cups, daily route, practice, pause, rematch, and saved settings.
+- Full tour, quick/custom cups, daily route, practice, pause, rematch, and saved settings, arrow-key movement, optional automatic attacks/catches/deflections, and objective markers.
 - Current sprites retain four distinct movement frames. Character powers and full directional/attack animation are not part of this milestone.
 - No online rooms, accounts, cloud saves, shared leaderboards, licensed song recordings, or official-release claim.
 

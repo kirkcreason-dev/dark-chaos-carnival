@@ -1,6 +1,10 @@
-# Validation — Alpha 0.7
+# Validation — Alpha 0.7.1
 
 Checked in a desktop browser using real page interaction, keyboard events, read-only state snapshots, and rendered screenshots. Automated simulation accelerates time; it does not stand in for human playtesting.
+
+## Easier controls in 0.7.1
+
+The keyboard regression completes the warm-up with arrow movement and Space, then scores in all six attractions using arrow events with no pointer input or attack key. It checks the assistance toggle, Right Shift manual attack, saved settings and existing-run restoration, independent player-two WASD/Left Shift controls, scroll prevention, pause on focus loss, Chill Grand Tour default, and fixed Rowdy daily mode. Browser verification resumed an existing saved cup, accepted ArrowRight and Space from the focused arena, displayed automatic deflections and an objective marker, and produced no console errors. These are functional checks, not human difficulty ratings.
 
 ## Alpha 0.7 checks
 

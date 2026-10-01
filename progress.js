@@ -14,7 +14,7 @@ window.CarnivalProgress = (() => {
   const integer = (v, max = 1000000000) => Number.isFinite(Number(v)) ? Math.max(0, Math.min(max, Math.floor(Number(v)))) : 0;
   const date = v => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v);
   const object = v => v && typeof v === 'object' && !Array.isArray(v);
-  const empty = () => ({ version: 2, tickets: 0, secrets: [], days: [], daily: {}, cups: 0, look: 'classic', reduced: false, learnedControls: false, sound: true, music: .65, effects: .8, graphics: 'full', mastery: {}, tourWins: [], tourVisits: 0, checkpoint: null });
+  const empty = () => ({ version: 2, tickets: 0, secrets: [], days: [], daily: {}, cups: 0, look: 'classic', reduced: false, learnedControls: false, sound: true, music: .65, effects: .8, graphics: 'full', autoAction: true, mastery: {}, tourWins: [], tourVisits: 0, checkpoint: null });
 
   function checkpoint(raw) {
     if (!object(raw) || raw.version !== 1 || !object(raw.match) || !Array.isArray(raw.seats) || raw.seats.length !== 4) return null;
@@ -29,7 +29,7 @@ window.CarnivalProgress = (() => {
     if (!['totals', 'raw'].every(k => Array.isArray(m[k]) && m[k].length === 4 && m[k].every(n => Number.isInteger(n) && n >= 0 && n <= 1000000000))) return null;
     if (!Array.isArray(m.roundHistory) || m.roundHistory.length !== m.roundIndex || !m.roundHistory.every((r, i) => object(r) && r.booth === ids[m.route[i]] && Array.isArray(r.scores) && r.scores.length === 4 && r.scores.every(n => Number.isInteger(n) && n >= 0 && n <= 1000000))) return null;
     if (m.mode === 'daily' && (m.route.length !== 3 || human.length !== 1 || raw.seats[0].control === 'cpu' || m.level !== 'rowdy')) return null;
-    if (m.mode === 'tour' && (m.route.join() !== '0,1,2,3,4,5' || human.length !== 1 || raw.seats[0].control === 'cpu' || m.level !== 'rowdy')) return null;
+    if (m.mode === 'tour' && (m.route.join() !== '0,1,2,3,4,5' || human.length !== 1 || raw.seats[0].control === 'cpu')) return null;
     return { version: 1, seats: raw.seats.map(s => ({ character: s.character, control: s.control })), match: { mode: m.mode, day: m.day, seed: m.seed, quick: !!m.quick, level: m.level, roundIndex: m.roundIndex, route: [...m.route], mods: [...m.mods], totals: [...m.totals], raw: [...m.raw], roundHistory: m.roundHistory.map(r => ({ booth: r.booth, scores: [...r.scores] })), done: false } };
   }
 
@@ -45,6 +45,7 @@ window.CarnivalProgress = (() => {
     s.reduced = raw.reduced === true; s.learnedControls = raw.learnedControls === true; s.sound = raw.sound !== false;
     for (const k of ['music', 'effects']) if (typeof raw[k] === 'number' && Number.isFinite(raw[k])) s[k] = Math.max(0, Math.min(1, raw[k]));
     s.graphics = raw.graphics === 'battery' ? 'battery' : 'full';
+    s.autoAction = raw.autoAction !== false;
     for (const id of ids) if (object(raw.mastery?.[id])) s.mastery[id] = { best: integer(raw.mastery[id].best, 1000000), score: integer(raw.mastery[id].score, 1000000), plays: integer(raw.mastery[id].plays) };
     s.tourWins = [...new Set(Array.isArray(raw.tourWins) ? raw.tourWins.filter(n => Number.isInteger(n) && n >= 0 && n < 6) : [])];
     s.look = ['classic', 'neon', 'royal', 'crowned'].includes(raw.look) ? raw.look : 'classic';
