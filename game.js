@@ -24,8 +24,22 @@ const saveKey='dark-chaos-carnival-v1';
 let storageAvailable=true;
 let save=Progress.empty();
 try { save=Progress.normalize(JSON.parse(localStorage.getItem(saveKey)||'null')); } catch {storageAvailable=false;}
+// jcwlunacy.net bridge: while the game runs inside the JCW Lunacy site, progress is
+// handed to the page so the site can award badges. Does nothing when played on its own.
+function siteReport(ev,extra){
+ try{
+  if(window.parent===window)return;
+  const m=save.mastery||{};let medals=0,golds=0,booths=0,plays=0;
+  for(const id of Object.keys(Progress.goals)){const t=Progress.medal(id,(m[id]||{}).best||0);medals+=t;if(t>=1)booths++;if(t>=3)golds++;plays+=(m[id]||{}).plays||0;}
+  const daily=Object.values(save.daily||{});
+  const summary={tickets:save.tickets,cups:save.cups,secrets:save.secrets.length,days:save.days.length,tourVisits:save.tourVisits||0,crowns:save.tourWins.length,
+   medals,golds,booths,plays,dailyRuns:daily.reduce((n,d)=>n+(d.runs||0),0),dailyBest:daily.reduce((n,d)=>Math.max(n,d.best||0),0)};
+  window.parent.postMessage(Object.assign({type:'jcw-game',game:'dcc',v:1,ev,summary},extra||{}),'*');
+ }catch{}
+}
 function persist(){
  try{localStorage.setItem(saveKey,JSON.stringify(save));storageAvailable=true;}catch{storageAvailable=false;}
+ siteReport('save');
  const notice=$('save-status');if(notice){notice.hidden=storageAvailable;notice.textContent='Device saving is unavailable. Keep this game open to retain this session’s progress.';}
 }
 function dateKey(d=new Date()){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
@@ -530,6 +544,8 @@ function finishMatch(){
  if(match.mode==='tour'){save.tourVisits++;if(tourWin&&!save.tourWins.includes(players[0].character))save.tourWins.push(players[0].character);}
  let dailyMessage='';if(match.mode==='daily'){const score=match.raw[0],old=save.daily[match.day];save.daily[match.day]={best:Math.max(old?.best||0,score),runs:(old?.runs||0)+1};dailyMessage=`<div class="daily-summary"><span>TODAY: ${score} TICKETS</span><span>${!old||score>old.best?'NEW PERSONAL BEST':'BEST: '+old.best}</span></div>`;}
  persist();
+ {const humans=players.filter(p=>p.human),me=humans[0];
+  if(humans.length===1)siteReport('match',{won:winners.includes(me),mode:match.mode,level:match.level,character:C.characters[me.character]?.id||''});}
  let unlock=tourWin?'Carnival Crown look unlocked.':before-earned<300&&save.tickets>=300?'Afterlife royalty look unlocked.':before-earned<100&&save.tickets>=100?'Neon night look unlocked.':'';
  if(unlock)toast(`<strong>NEW LOOK</strong> ${unlock}`);
  const headline=match.mode==='tour'?(tourWin?'The Carnival knows your name.':'Six cards. One more reason to return.'):match.mode==='practice'?'You know this booth now.':winners.length>1?'Share the crown.':`${winners[0].name} rules the midway.`;
@@ -681,5 +697,6 @@ function frame(ms){
 
 setupSettings();persist();refreshProgress();requestAnimationFrame(frame);
 // Read-only snapshot for deterministic regression checks and debugging.
+siteReport('hello');
 window.CarnivalDebug={snapshot:()=>JSON.parse(JSON.stringify({scene,mode,renderCount,loadedTextures:Object.keys(textures),day:dateKey(),round:round?{booth:round.booth.id,modifier:round.modifier.id,state:round.state,time:round.time,items:round.items.length,warmup:warmup?{stage:warmup.stage,moved:warmup.moved,dashed:warmup.dashed}:null,pointer:pointerIntent?{kind:pointerIntent.kind,x:pointerIntent.object?.x??pointerIntent.x,y:pointerIntent.object?.y??pointerIntent.y}:null,world:{items:round.items,hazards:round.hazards,secrets:round.secrets,safe:round.safe,tiles:round.tiles,gate:round.gate,dummies:round.dummies,chickens:round.chickens,mirrors:round.mirrors,shades:round.shades}}:null,players:players.map(p=>({id:p.id,x:p.x,y:p.y,score:p.score,carry:p.carry,cd:p.cd,human:p.human,control:p.control,pickups:p.pickups,deflects:p.deflects,safes:p.safes,banked:p.banked,inv:p.inv,dash:p.dash,kills:p.kills,delivered:p.delivered,character:p.character,attackCD:p.attackCD,attackTime:p.attackTime,attackPending:p.attackPending,walkSpeed:p.walkSpeed,animation:Animation.pose(p,warmup?.time??round?.time??0),walkDistance:p.walkDistance})),match:match?{mode:match.mode,roundIndex:match.roundIndex,route:match.route,mods:match.mods,quick:match.quick,level:match.level,day:match.day,totals:match.totals,raw:match.raw,done:match.done}:null,progress:JSON.parse(JSON.stringify(save)),storageAvailable})),routeForDay};
 })();
