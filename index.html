@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#100d18">
-  <title>Dark Chaos Carnival — Alpha 0.7.1</title>
-  <link rel="stylesheet" href="styles.css">
+  <title>Dark Chaos Carnival — Alpha 0.8.0</title>
+  <link rel="stylesheet" href="styles.css?v=0.8.0.2">
 </head>
 <body>
   <div id="app">
@@ -31,8 +31,8 @@
             <div class="hero-buttons"><button class="button primary" id="solo-button">PLAY NOW <span>→</span></button><button class="button secondary" id="party-button">LOCAL PARTY</button></div><div class="hero-secondary-actions"><button id="watch-intro" class="text-button">WATCH INTRO ▶</button><button id="custom-solo" class="text-button custom-solo">CHARACTERS & CUP ↗</button></div>
             <div class="hero-facts"><span>1–4 LOCAL PLAYERS*</span><i></i><span>6 ATTRACTIONS</span><i></i><span>NO DOWNLOAD REQUIRED</span></div>
           </div>
-          <div class="hero-cast" aria-label="Violent J and Shaggy 2 Dope"><div class="hero-j character-sprite sprite-icp row-0"></div><div class="hero-shaggy character-sprite sprite-icp row-1"></div></div><div class="card-fan"><img src="assets/cards/ringmaster.jpg" alt="Ringmaster"><img src="assets/cards/riddle.jpg" alt="Riddle Box"><img src="assets/cards/milenko.jpg" alt="The Great Milenko"></div><div class="ticket-stamp"><span>ADMIT</span><strong>THE<br>FAMILY</strong><span>EST. IN THE AFTERLIFE</span></div>
-          <div class="hero-caption"><span class="live-dot"></span> ALPHA 0.7.1 · GRAND TOUR <span>ACTUAL CARDS · SIX PLAYABLE CHARACTERS</span></div>
+          <div class="hero-cast" aria-label="Violent J and Shaggy 2 Dope"><div class="hero-j character-sprite sprite-violent-j-v2"></div><div class="hero-shaggy character-sprite sprite-shaggy-v2"></div></div><div class="card-fan"><img src="assets/cards/ringmaster.jpg" alt="Ringmaster"><img src="assets/cards/riddle.jpg" alt="Riddle Box"><img src="assets/cards/milenko.jpg" alt="The Great Milenko"></div><div class="ticket-stamp"><span>ADMIT</span><strong>THE<br>FAMILY</strong><span>EST. IN THE AFTERLIFE</span></div>
+          <div class="hero-caption"><span class="live-dot"></span> ALPHA 0.8.0 · GRAND TOUR <span>ACTUAL CARDS · SIX PLAYABLE CHARACTERS</span></div>
         </div>
         <div class="midway-strip"><span>STEP RIGHT UP</span><span>✦</span><span>SIX CARDS. ONE WICKED CUP.</span><span>✦</span><span>EVERY SOUL GETS A TURN</span><span>✦</span><span>STEP RIGHT UP</span></div>
         <div id="save-status" class="save-status" role="status" hidden></div>
@@ -89,7 +89,7 @@
         <section class="settings-panel"><p class="eyebrow">MAKE YOURSELF COMFORTABLE</p><h3>Controls, sound & display</h3><div class="settings-grid"><label class="check-label"><input id="auto-action" type="checkbox" checked> Auto attack & catch · recommended</label><label for="music-volume">MUSIC <output id="music-volume-value">65%</output><input id="music-volume" type="range" min="0" max="100" value="65"></label><label for="effects-volume">EFFECTS <output id="effects-volume-value">80%</output><input id="effects-volume" type="range" min="0" max="100" value="80"></label><label for="graphics-mode">DISPLAY<select id="graphics-mode"><option value="full">Full motion · up to 60 fps</option><option value="battery">Save battery · up to 30 fps</option></select></label><label class="check-label"><input id="settings-shake" type="checkbox"> Reduce screen shake</label></div><p>Auto attack handles nearby attraction targets and shows an objective marker. Manual attacks still work, including shoving rivals. Chill mode has slower bots and gentler hit penalties. Display mode changes animation only. Completed rounds save automatically; Continue Run restarts the attraction you left.</p></section><div class="vault-note"><strong>Build notes</strong><p>Progress is saved in this browser on this device. Daily scores are personal, not an online leaderboard. Phone controls appear automatically on touchscreens. Portrait and landscape layouts are supported; sideways gives the arena more room. Touch and mouse control the first human seat. Phone play is solo with bots; online rooms are not included. Music and effects are original synthesized audio. Actual card artwork and researched character adaptations are included for this local concept. No ICP recordings, lyrics, cloned voices, or endorsements are included.</p><a href="DESIGN.md" target="_blank">Read the full game concept & development plan ↗</a></div>
       </section>
     </main>
-    <footer class="footer"><span>✦ DARK CHAOS CARNIVAL</span><span>THE MIDWAY IS CALLING.</span><span>ALPHA 0.7.1 · OCTOBER 2026</span></footer>
+    <footer class="footer"><span>✦ DARK CHAOS CARNIVAL</span><span>THE MIDWAY IS CALLING.</span><span>ALPHA 0.8.0 · OCTOBER 2026</span></footer>
     <div id="loading-screen" class="loading-screen" hidden><div><p class="eyebrow">DARK CHAOS CARNIVAL</p><h2>Opening the gates…</h2><p>Preparing the characters and attractions.</p></div></div>
     <div id="toast" class="toast" role="status" hidden></div>
   </div>
@@ -109,13 +109,14 @@
     <audio id="intro-audio" preload="none"></audio>
   </dialog>
   <dialog id="record-dialog" class="record-dialog"></dialog>
-  <script src="catalog.js"></script>
-  <script src="content.js"></script>
-  <script src="audio.js"></script>
-  <script src="touch-controls.js"></script>
-  <script src="progress.js"></script>
-  <script src="game.js"></script>
-  <script src="library.js"></script>
-  <script src="intro.js"></script>
+  <script src="catalog.js?v=0.8.0.2"></script>
+  <script src="content.js?v=0.8.0.2"></script>
+  <script src="audio.js?v=0.8.0.2"></script>
+  <script src="touch-controls.js?v=0.8.0.2"></script>
+  <script src="progress.js?v=0.8.0.2"></script>
+  <script src="animation.js?v=0.8.0.2"></script>
+  <script src="game.js?v=0.8.0.2"></script>
+  <script src="library.js?v=0.8.0.2"></script>
+  <script src="intro.js?v=0.8.0.2"></script>
 </body>
 </html>

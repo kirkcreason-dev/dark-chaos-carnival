@@ -1,6 +1,14 @@
-# Dark Chaos Carnival — Alpha 0.7.1
+# Dark Chaos Carnival — Alpha 0.8.0
 
 A playable horrorcore party-game alpha built around ICP’s Joker’s Cards. Play as Violent J, Shaggy 2 Dope, Ringmaster, The Great Milenko, Jack Jeckel, or The Wraith.
+
+## New character animation in 0.8.0
+
+All six playable characters now have eight movement poses, six attack poses, and two idle poses. Violent J and Shaggy carry and swing hatchets; Ringmaster rakes with his claws, Milenko strikes with his wand, and Jack and The Wraith use spectral attacks. Ground-character walk sheets include distinct wide, passing, and lifted-foot poses. Spirits float.
+
+The swing has anticipation, contact, and recovery. Damage and the impact sound happen 160 ms into the swing, on its contact pose. Movement animation follows actual distance traveled, stops against walls, and holds a lunge pose during a dash. Sprite frames use measured boundaries and grounded pivots instead of equal-grid guesses.
+
+[Open the Sprite Studio](ANIMATION.html) to inspect every pose, slow the animation, or face left. Artwork was created with built-in image generation; exact prompts and atlas metadata are in `assets/sprites/`.
 
 ## Easier controls in 0.7.1
 
@@ -68,17 +76,17 @@ Records save immediately when collected. Tickets and mastery save after each com
 
 Actual covers and researched character adaptations are included in this local concept. The game is not an official or endorsed release. It embeds no ICP recordings, lyrics, or cloned voices. Its music is an original synthesized 84 BPM horrorcore score.
 
-This is a playable local alpha: local multiplayer, bots, new art, four-frame movement, six distinct objectives, and saved progression. Choose Chill, Rowdy, or Wicked bots. Daily runs use fixed Rowdy difficulty so attempts use the same rules. Standard attacks shove opponents; dash collisions can steal one ticket.
+This is a playable local alpha: local multiplayer, bots, new art, eight-pose character movement and dedicated attacks, six distinct objectives, and saved progression. Choose Chill, Rowdy, or Wicked bots. Daily runs use fixed Rowdy difficulty so attempts use the same rules. Standard attacks shove opponents; dash collisions can steal one ticket.
 
-Online rooms, the full discography, unique character powers, finished directional/attack animation, commercial collaboration, and real fan playtesting remain work to do. Functional tests do not establish that people love it or will return daily.
+Online rooms, the full discography, unique character powers, full directional animation and further anatomy cleanup, commercial collaboration, and real fan playtesting remain work to do. Functional tests do not establish that people love it or will return daily.
 
 ## Files
 
-- `index.html`, `styles.css`, `content.js`, `game.js`, `touch-controls.js`, `progress.js`, `audio.js`, `library.js`, `catalog.js`, `intro.js`: runnable game.
-- `assets/`: six painted arenas, five sprite sheets, actual cover images, and title art.
+- `index.html`, `styles.css`, `content.js`, `game.js`, `touch-controls.js`, `progress.js`, `animation.js`, `audio.js`, `library.js`, `catalog.js`, `intro.js`: runnable game.
+- `assets/`: six painted arenas, ten new character atlases plus the retained original sprite sheets, actual cover images, and title art.
 - `DESIGN.md`: complete concept, catalog expansion, daily return loop, market proposition, and production plan.
 - `RESEARCH.md`, `catalog-sources.json`: sources and exact included catalog editions.
-- `ANIMATION.html`: inspect the walking and spirit loops at adjustable speed.
+- `ANIMATION.html`: inspect movement, attacks, and idle poses at adjustable speed.
 - `ART-DIRECTION.md`, `asset-prompts.json`: asset provenance and animation requirements.
 - `VALIDATION.md`: verified behavior and remaining limits.
 
@@ -104,4 +112,4 @@ Generated files go into `dist/`, which is excluded from Git: `Dark-Chaos-Carniva
 
 Start a local-network preview with `python3 -m http.server 8766 --bind 0.0.0.0` in this game folder. On a phone sharing the computer’s network, open `http://<computer-LAN-IP>:8766/`. Keep the computer and server running. The loopback address `127.0.0.1` only works on the computer hosting the server. Browser progress remains local to each device and address.
 
-The intro assets and storyboard are documented in `assets/intro/README.md`. This repository is the game source; pushing it to GitHub does not deploy a public game site.
+The intro assets and storyboard are documented in `assets/intro/README.md`. This repository publishes the public game through GitHub Pages after each successful push to `main`.

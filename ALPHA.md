@@ -1,4 +1,4 @@
-# Dark Chaos Carnival — Alpha 0.7.1
+# Dark Chaos Carnival — Alpha 0.8.0
 
 This milestone completes the local six-attraction loop with a beginning, full tour, ending, persistent mastery, and recovery from interrupted sessions. It is a development alpha, not a production launch label. No changes have been made to the Psychopathic app as part of this milestone.
 
@@ -15,7 +15,7 @@ This milestone completes the local six-attraction loop with a beginning, full to
 - Six attractions, six named characters, six second-deck modifiers, 18 mastery medals, six character crowns, six hidden records, and the existing 18-release archive.
 - Solo bots, two shared-keyboard players, or up to four local players with gamepads. Phone controls operate one human seat.
 - Full tour, quick/custom cups, daily route, practice, pause, rematch, and saved settings, arrow-key movement, optional automatic attacks/catches/deflections, and objective markers.
-- Current sprites retain four distinct movement frames. Character powers and full directional/attack animation are not part of this milestone.
+- Six playable characters use eight movement poses, six attack poses, and two idle poses. Hatchet swings, claw attacks, wand strikes, and spectral attacks have contact-timed hits. Full directional sets, further anatomy cleanup, and character powers remain future work.
 - No online rooms, accounts, cloud saves, shared leaderboards, licensed song recordings, or official-release claim.
 
 ## Interruption and storage contract

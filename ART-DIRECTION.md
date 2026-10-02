@@ -1,6 +1,6 @@
 # Dark Chaos Carnival — art and animation
 
-Build 0.2 uses actual Joker’s Card covers in the menus, archive, and round briefings. The cast and stages are new generated game adaptations of researched visual references. They are not official ICP production assets.
+The game uses actual Joker’s Card covers in the menus, archive, and round briefings. The cast and stages are new generated game adaptations of researched visual references. They are not official ICP production assets.
 
 ## Visual direction
 
@@ -12,16 +12,19 @@ The music sketch uses heavy kick and snare, sub-bass, a minor organ, and detuned
 
 **Always draw different leg poses for walking characters.** A walk requires contact, passing, opposite-foot contact, and opposite passing poses. Both legs must be visible enough to read the weight transfer. Keep scale and the planted-foot baseline consistent, with opposing arm movement. Do not present repeated standing art as a walk cycle.
 
-The first sheets repeated their leading leg. They were regenerated and revised with explicit near/far-leg instructions. Current gameplay advances a character’s four-frame loop according to traveled distance rather than the global clock; a stopped character stops stepping. Dummies and chickens also use four-frame sheets. Jack and Wraith use floating spirit poses. Lobby portraits preview their loop on hover; reduced-motion settings suppress that preview.
+Build 0.8 replaces the playable cast with eight movement poses, six dedicated attack poses, and two idle poses per character. The first new walk attempt still repeated broad stride silhouettes; a separate correction pass adds closed-leg passing and lifted trailing-foot poses. Walking follows actual displacement and stops at walls. Dashes hold one lunge pose. The two floating characters retain spirit movement. Portraits use a stable idle pose.
 
-These are still prototype loops. Production needs eight or more coherent poses, separate idle and attack clips, properly authored directional animation, planted-foot review in motion, and artist cleanup. The four-frame loop should not be described as finished realistic animation.
+The attack sequence is anticipation, raised wind-up, acceleration, contact, follow-through, and recovery. J and Shaggy carry hatchets, Ringmaster claws, Milenko uses his wand, and the spirits sweep with flame or spectral hands. Contact is at 160 ms of a 360 ms clip. Pivots anchor the soles or spirit bases; movement and attack sheets are scaled by their standing-body reference heights. A clipping polygon prevents a neighboring walk-frame boot from leaking into J’s raised-hatchet frame.
+
+These remain generated character adaptations with some anatomy and pose drift. The added passing poses improve movement but do not establish production-quality realistic foot planting. Full directional sets and animator cleanup remain useful follow-up work. Dummies and chickens retain their original four-frame cycles.
 
 ## Assets and provenance
 
-All bitmap generation used the built-in image generation tool. Transparent sheets use four equal columns and two equal rows. Rebuild prompts, including revisions, are in `asset-prompts.json`.
+All bitmap generation used the built-in image generation tool. The older sheets use four columns and two rows. New attack/idle sheets are nominally 4 × 4; corrected ground walks are 4 × 2. Generated spacing is irregular, so runtime sampling uses explicit rectangles and pivots in `animation.js`, mirrored in `assets/sprites/atlas-metadata.json`. Original PNG alpha is preserved. Rebuild prompts are in `asset-prompts.json` and `assets/sprites/animation-prompts.json`.
 
 | File | Source / mode | Use |
 |---|---|---|
+| `assets/sprites/*-v2.png` | Built-in image generation/edit using the established character sheets | Six attack/idle atlases and four corrected walk atlases; 96 runtime poses |
 | `assets/carnival.png` | Original text-to-image generation | Midway title environment |
 | `assets/sprites/icp.png` | Image generation/edit from the official artist portrait and subsequent sheet revisions | Violent J and Shaggy 2 Dope; four walking frames each |
 | `assets/sprites/hosts.png` | Image generation/edit from actual Ringmaster and green Milenko covers | Ringmaster and Milenko; four walking frames each |

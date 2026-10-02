@@ -1,10 +1,10 @@
 {
   "name": "dark-chaos-carnival",
-  "version": "0.7.1-alpha.1",
+  "version": "0.8.0-alpha.1",
   "private": true,
   "description": "Dark Chaos Carnival \u2014 Grand Tour alpha",
   "scripts": {
-    "test": "node tests/intro.test.cjs && node tests/desktop.test.cjs && node tests/easy-controls.test.cjs && node tests/touch.test.cjs && node tests/progression.test.cjs && node tests/controller.test.cjs && node tests/audio.test.cjs",
+    "test": "node tests/intro.test.cjs && node tests/desktop.test.cjs && node tests/easy-controls.test.cjs && node tests/touch.test.cjs && node tests/progression.test.cjs && node tests/controller.test.cjs && node tests/audio.test.cjs && node tests/animation.test.cjs",
     "build": "python3 scripts/package.py"
   },
   "engines": {

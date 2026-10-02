@@ -1,6 +1,14 @@
-# Validation — Alpha 0.7.1
+# Validation — Alpha 0.8.0
 
 Checked in a desktop browser using real page interaction, keyboard events, read-only state snapshots, and rendered screenshots. Automated simulation accelerates time; it does not stand in for human playtesting.
+
+## Sprite and combat checks in 0.8.0
+
+All eight automated suites pass. New checks validate all 96 source rectangles against the actual PNG dimensions and RGBA format; eight movement indices; six attack phases; captured facing; no damage during wind-up; contact-frame damage; exactly one hit per swing; paused pending attacks; and no footsteps while pushing against a wall. Existing full-tour, save recovery, six-attraction arrow-only scoring, touch, controller, audio, and intro checks still pass.
+
+The raw generated PNGs were inspected, their alpha channels measured, and frame boundaries and pivots mapped explicitly. The first new walk sheets did not have enough passing-pose variation; a second set was generated for the four ground characters. They are still stylized generated artwork with anatomy drift, not a claim of realistic final animation.
+
+Browser checks rendered all six characters, played Hatchet Havoc to results, accepted arrow/dash inputs, and checked thumbstick/dash behavior at 390 × 844. The sprite studio showed all movement/attack/idle source images loaded and contact poses composited over a dark background. No browser console errors appeared during the game checks. Phone coverage is desktop viewport simulation, not hardware validation.
 
 ## Easier controls in 0.7.1
 
@@ -71,6 +79,6 @@ The initial sprite sheets repeated their leading leg; grounded character sheets 
 
 This is functional and visual verification, not proof of enjoyment, authenticity, retention, or sales. No fan study or multiplayer room playtest has occurred. Real controller hardware, Safari/Firefox coverage, physical mobile gameplay, online networking, and accessibility beyond the implemented keyboard/reduced-shake features remain unverified or out of scope.
 
-Four-frame generated movement remains prototype art. Full directional sets, dedicated attack and idle clips, consistent anatomy across every frame, and production-quality foot planting require animator cleanup. Audio is an original synthesized sketch and has not been professionally mixed or mastered. The six characters currently share gameplay statistics.
+The generated character art now includes eight movement poses and separate attack and idle clips. Full directional sets, consistent anatomy across every frame, and production-quality foot planting still require animator cleanup. Audio is an original synthesized sketch and has not been professionally mixed or mastered. The six characters currently share gameplay statistics.
 
 The build is local multiplayer with bots. There is no online service, account system, global leaderboard, or full-discography completion claim. Official status and production distribution are not established by these tests.

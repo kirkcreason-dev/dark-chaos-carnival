@@ -157,6 +157,8 @@ window.CARNIVAL = {
   "characters": [
     {
       "id": "violent-j",
+      "atlas": "violent-j-v2",
+      "walkAtlas": "violent-j-walk-v2",
       "name": "Violent J",
       "short": "VIOLENT J",
       "sheet": "icp",
@@ -167,16 +169,20 @@ window.CARNIVAL = {
     },
     {
       "id": "shaggy",
+      "atlas": "shaggy-v2",
+      "walkAtlas": "shaggy-walk-v2",
       "name": "Shaggy 2 Dope",
       "short": "SHAGGY 2 DOPE",
       "sheet": "icp",
       "row": 1,
       "role": "THE SOUTHWEST STRANGLA",
-      "flavor": "Soda in one hand. Trouble in the other.",
+      "flavor": "Hatchet in hand. Trouble on the midway.",
       "card": "ringmaster"
     },
     {
       "id": "ringmaster",
+      "atlas": "ringmaster-v2",
+      "walkAtlas": "ringmaster-walk-v2",
       "name": "Ringmaster",
       "short": "RINGMASTER",
       "sheet": "hosts",
@@ -187,6 +193,8 @@ window.CARNIVAL = {
     },
     {
       "id": "milenko",
+      "atlas": "milenko-v2",
+      "walkAtlas": "milenko-walk-v2",
       "name": "The Great Milenko",
       "short": "MILENKO",
       "sheet": "hosts",
@@ -197,6 +205,7 @@ window.CARNIVAL = {
     },
     {
       "id": "jack",
+      "atlas": "jack-v2",
       "name": "Jack Jeckel",
       "short": "JACK JECKEL",
       "sheet": "spirits",
@@ -207,6 +216,7 @@ window.CARNIVAL = {
     },
     {
       "id": "wraith",
+      "atlas": "wraith-v2",
       "name": "The Wraith",
       "short": "THE WRAITH",
       "sheet": "spirits",
