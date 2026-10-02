@@ -8,7 +8,7 @@ All eight automated suites pass. New checks validate all 96 source rectangles ag
 
 The raw generated PNGs were inspected, their alpha channels measured, and frame boundaries and pivots mapped explicitly. The first new walk sheets did not have enough passing-pose variation; a second set was generated for the four ground characters. They are still stylized generated artwork with anatomy drift, not a claim of realistic final animation.
 
-Browser checks rendered all six characters, played Hatchet Havoc to results, accepted arrow/dash inputs, and checked thumbstick/dash behavior at 390 × 844. The sprite studio showed all movement/attack/idle source images loaded and contact poses composited over a dark background. No browser console errors appeared during the game checks. Phone coverage is desktop viewport simulation, not hardware validation.
+Browser checks rendered all six characters, played Hatchet Havoc to results, accepted arrow/dash inputs, and checked thumbstick/dash behavior at 390 × 844. The sprite studio showed all movement/attack/idle source images loaded and contact poses composited over a dark background. A final slow-motion pass found and replaced one Shaggy transition that lost the weapon. The standalone edition loaded its embedded portraits, arena, and characters and began a match. No browser console errors appeared during the game checks. Phone coverage is desktop viewport simulation, not hardware validation.
 
 ## Easier controls in 0.7.1
 

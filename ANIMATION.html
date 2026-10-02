@@ -17,13 +17,13 @@
 </div>
 <p id="error" hidden>One of the sprite sheets could not load. Refresh to retry.</p><div id="cast"></div>
 <p class="guide" id="note">Ground characters alternate their leading leg through contact, passing, and lift poses. Jack and The Wraith float. The ground marker shows each character’s anchor.</p>
-<script src="content.js?v=0.8.0.2"></script><script src="animation.js?v=0.8.0.2"></script>
+<script src="content.js?v=0.8.0.3"></script><script src="animation.js?v=0.8.0.3"></script>
 <script>
 const A=window.CarnivalAnimation,C=window.CARNIVAL,$=id=>document.getElementById(id);
 let playing=!matchMedia('(prefers-reduced-motion: reduce)').matches,phase=0,clock=0,last=0;
 const sequences={walk:[0,1,2,3,4,5,6,7],attack:[8,9,10,11,12,13],idle:[14,15]},images={};
 $('cast').innerHTML=C.characters.map(ch=>`<article class="person"><canvas id="sprite-${ch.id}" width="720" height="620" aria-label="${ch.name} animation"></canvas><div class="caption"><h2>${ch.name}</h2><small id="pose-${ch.id}">LOADING</small></div></article>`).join('');
-for(const ch of C.characters)for(const sheet of [ch.atlas,ch.walkAtlas].filter(Boolean)){const im=new Image();images[sheet]=im;im.onload=render;im.onerror=()=>$('error').hidden=false;im.src=`assets/sprites/${sheet}.png`;}
+for(const ch of C.characters)for(const sheet of new Set(A.atlases[ch.id].frames.map(f=>f.sheet))){const im=new Image();images[sheet]=im;im.onload=render;im.onerror=()=>$('error').hidden=false;im.src=`assets/sprites/${sheet}.png`;}
 function render(){
  const action=$('action').value,seq=sequences[action],index=seq[phase],flip=$('flip').checked;
  $('frame').max=seq.length-1;$('frame').value=phase;$('number').value=`${phase+1} / ${seq.length}`;$('play').textContent=playing?'Pause':'Play';

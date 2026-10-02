@@ -83,7 +83,7 @@ Online rooms, the full discography, unique character powers, full directional an
 ## Files
 
 - `index.html`, `styles.css`, `content.js`, `game.js`, `touch-controls.js`, `progress.js`, `animation.js`, `audio.js`, `library.js`, `catalog.js`, `intro.js`: runnable game.
-- `assets/`: six painted arenas, ten new character atlases plus the retained original sprite sheets, actual cover images, and title art.
+- `assets/`: six painted arenas, new character atlases and a corrected Shaggy swing frame, plus the retained original sprite sheets, actual cover images, and title art.
 - `DESIGN.md`: complete concept, catalog expansion, daily return loop, market proposition, and production plan.
 - `RESEARCH.md`, `catalog-sources.json`: sources and exact included catalog editions.
 - `ANIMATION.html`: inspect movement, attacks, and idle poses at adjustable speed.

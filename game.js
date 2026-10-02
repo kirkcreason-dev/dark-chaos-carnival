@@ -16,7 +16,7 @@ function loadTexture(key,path){
  return textureLoads[key];
 }
 async function prepareArt(index,characters){
- const id=C.booths[index].id,names=[...new Set([...characters.flatMap(n=>[C.characters[n].atlas,C.characters[n].walkAtlas].filter(Boolean)),'props','creatures'])];
+ const id=C.booths[index].id,names=[...new Set([...characters.flatMap(n=>Animation.atlases[C.characters[n].id].frames.map(f=>f.sheet)),'props','creatures'])];
  await Promise.all([loadTexture('arena-'+id,`assets/arenas/${id}.png`),...names.map(name=>loadTexture(name,`assets/sprites/${name}.png`))]);
 }
 let viewRevision=0,selectedCharacters=[0,1,2,3],startInFlight=false,quickRequest=false,pointerIntent=null,pointerDash=false,pointerStrike=false,warmup=null;

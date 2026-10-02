@@ -360,13 +360,14 @@
         "pivotY": 297
       },
       {
-        "sheet": "shaggy-v2",
-        "x": 651,
-        "y": 653,
-        "w": 274,
-        "h": 278,
-        "pivotX": 120.5,
-        "pivotY": 275
+        "sheet": "shaggy-swing-transition-v2",
+        "x": 147,
+        "y": 81,
+        "w": 1161,
+        "h": 991,
+        "pivotX": 502.5,
+        "pivotY": 988,
+        "bodyHeight": 1102.69
       },
       {
         "sheet": "shaggy-v2",
